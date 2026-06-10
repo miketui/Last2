@@ -1,4 +1,4 @@
-import { Section } from "@/components/design/Section";
+import { UtilityShell } from "@/components/design/UtilityShell";
 import { pageMetadata } from "@/lib/seo";
-export const metadata = pageMetadata("Thank you", "Checkout or signup thank-you page.", true);
-export default function ThankYouPage() { return <main><Section eyebrow="Thank you" title="Your next step is protected."><p>If this followed checkout, entitlement creation is finalized through the verified Stripe webhook scaffold.</p></Section></main>; }
+export const metadata = pageMetadata("Thank You", "Post-checkout confirmation.", true);
+export default function Page() { return <UtilityShell eyebrow="Confirmation" title="Thank you." description="When live checkout is activated, this page will confirm the order and point buyers to protected account delivery."><div className="editorial-panel rounded-3xl p-6"><p className="text-whitegold/75">Scaffold state: no live payment has been processed in this environment.</p></div></UtilityShell>; }

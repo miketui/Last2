@@ -1,4 +1,5 @@
 import { AuthForm } from "@/components/AuthForm";
+import { UtilityShell } from "@/components/design/UtilityShell";
 import { pageMetadata } from "@/lib/seo";
-export const metadata = pageMetadata("Sign up", "Create a customer account.", true);
-export default function SignupPage() { return <main className="px-6 py-16"><h1 className="text-center font-display text-5xl text-white">Create account</h1><div className="mt-8"><AuthForm mode="signup" /></div></main>; }
+export const metadata = pageMetadata("Signup", "Create a customer account.", true);
+export default function Page() { return <UtilityShell eyebrow="Account" title="Create your direct-edition account." description="Account creation will connect to Supabase Auth during production credential setup."><AuthForm mode="signup" /></UtilityShell>; }

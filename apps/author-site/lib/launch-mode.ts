@@ -10,11 +10,11 @@ export function getLaunchMode(value = process.env.NEXT_PUBLIC_LAUNCH_MODE): Laun
 export function getLaunchCta(mode: LaunchMode = getLaunchMode()) {
   switch (mode) {
     case "launched":
-      return { label: "Buy the direct edition", href: "/buy", helper: `Direct digital edition: $${priceConfig.regularDirect.amount.toFixed(2)}`, priceTier: "regular" as const };
+      return { label: `Buy the Book — $${priceConfig.regularDirect.amount.toFixed(2)}`, href: "/buy", helper: "Direct EPUB/PDF bundle with protected account delivery.", priceTier: "regular" as const };
     case "paused":
-      return { label: "Join the update list", href: "/free-chapter", helper: "Direct checkout is paused while the release is reviewed.", priceTier: "paused" as const };
+      return { label: "Read Chapter 1 Free", href: "/free-chapter", helper: "Direct checkout is paused while the release is reviewed.", priceTier: "paused" as const };
     default:
-      return { label: "Preorder the direct edition", href: "/preorder", helper: `Preorder / launch price: $${priceConfig.preorderDirect.amount.toFixed(2)}`, priceTier: "preorder" as const };
+      return { label: `Preorder — $${priceConfig.preorderDirect.amount.toFixed(2)}`, href: "/preorder", helper: "Direct launch price. Paid files stay in private storage.", priceTier: "preorder" as const };
   }
 }
 

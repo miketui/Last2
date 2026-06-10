@@ -1,5 +1,4 @@
 import { DashboardShell } from "@/components/DashboardShell";
 import { pageMetadata } from "@/lib/seo";
-import { getSessionUser } from "@/lib/supabase/server";
 export const metadata = pageMetadata("Dashboard", "Customer dashboard.", true);
-export default async function DashboardPage() { const user = await getSessionUser(); return <DashboardShell title="Dashboard">{user ? <p>Signed in as {user.email}. Orders, downloads, and bonus claims will appear here.</p> : <p>Please log in to view purchases and protected downloads.</p>}</DashboardShell>; }
+export default function Page() { return <DashboardShell title="Your account"><div className="grid gap-5 md:grid-cols-2"><div className="editorial-panel rounded-3xl p-6"><h2 className="font-display text-3xl text-white">Purchases</h2><p className="mt-3 text-whitegold/75">Entitlement-backed order history will appear here after Supabase is connected.</p></div><div className="editorial-panel rounded-3xl p-6"><h2 className="font-display text-3xl text-white">Downloads</h2><p className="mt-3 text-whitegold/75">Use the downloads page to request secure signed links.</p></div></div></DashboardShell>; }
