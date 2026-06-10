@@ -1,0 +1,1747 @@
+/* ====================================================================
+   1. PAGE SETUP — KDP Royal 6.69in x 9.61in
+   Headers (verso=book title, recto=chapter title) + folios (bottom-center)
+   Margins: gutter 0.95in, outside 0.70in, top/bot 0.80in
+   ==================================================================== */
+@page {
+  size: 6.69in 9.61in;
+  margin-top:    0.80in;
+  margin-bottom: 0.80in;
+  margin-left:   0.70in;  /* outside (default; overridden per :left/:right) */
+  margin-right:  0.70in;
+
+  @bottom-center {
+    content: counter(page);
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-size: 9pt;
+    letter-spacing: 0.08em;
+    color: #333;
+    padding-top: 0.22in;
+  }
+}
+
+/* Verso (left-hand / even-numbered) pages: gutter on RIGHT, book title in top-left */
+@page :left {
+  margin-left:  0.70in;   /* outside edge */
+  margin-right: 0.95in;   /* gutter / binding side */
+
+  @top-left {
+    content: "Curls & Contemplation";
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-size: 8.5pt;
+    font-style: italic;
+    letter-spacing: 0.12em;
+    color: #555;
+    padding-bottom: 0.15in;
+  }
+}
+
+/* Recto (right-hand / odd-numbered) pages: gutter on LEFT, chapter title in top-right */
+@page :right {
+  margin-left:  0.95in;   /* gutter / binding side */
+  margin-right: 0.70in;   /* outside edge */
+
+  @top-right {
+    content: string(chapter-title);
+    font-family: 'Montserrat', Arial, sans-serif;
+    font-size: 8.5pt;
+    letter-spacing: 0.12em;
+    color: #555;
+    padding-bottom: 0.15in;
+  }
+}
+
+/* First page of document: suppress folio */
+@page :first {
+  @bottom-center { content: ""; }
+  @top-left      { content: ""; }
+  @top-right     { content: ""; }
+}
+
+/* Blank pages forced by recto-start: fully empty */
+@page :blank {
+  @bottom-center { content: ""; }
+  @top-left      { content: ""; }
+  @top-right     { content: ""; }
+}
+
+/* Chapter opener / part divider / quote pages: no header, no folio */
+@page chapter-opener {
+  @bottom-center { content: ""; }
+  @top-left      { content: ""; }
+  @top-right     { content: ""; }
+}
+
+/* Front-matter pages (title, copyright, half-title, cover): no folio, no header */
+@page frontmatter-nofolio {
+  @bottom-center { content: ""; }
+  @top-left      { content: ""; }
+  @top-right     { content: ""; }
+}
+
+/* ================================================================
+   Assign page types to content wrappers emitted by the build script
+   (build-pod-pdf-royal.py wraps each file as <div id="src-..." class="...">)
+   ================================================================ */
+div[class*="title-page-body"],
+div[class*="copyright-body"],
+div[class*="cover-body"],
+div[class*="half-title-body"],
+div[class*="dedication-body"],
+div[class*="toc-body"]                  { page: frontmatter-nofolio; }
+
+/* Chapter / part / quote wrappers: force recto start; leave the outer wrapper
+   on the default @page so body-flow pages keep running headers. The inner
+   opener section (section.chap-title) is what carries the no-header treatment. */
+div[class*="chapter-page"],
+div[class*="part-body"],
+div[class*="quote-page"] {
+  break-before: right;
+}
+/* Only the decorative chapter-opener elements (Roman numeral + stacked title +
+   bible quote) that land on the first page of each chapter get the no-header/
+   no-folio treatment. The Introduction paragraphs that follow inside
+   section.chap-title fall through to the default @page with running headers. */
+section.chap-title > figure.chapter-number-figure,
+section.chap-title > .title-stack,
+section.chap-title > .bible-quote-container,
+section.part-container,
+section.image-quote,
+div[class*="part-body"] > main,
+div[class*="quote-page"] > main {
+  page: chapter-opener;
+}
+
+/* ================================================================
+   Capture chapter / section title for the recto running header.
+   The chapter title is inside <section class="chap-title"> as stacked
+   <div class="title-line"> elements inside <div class="title-stack">.
+   We harvest it via the sr-only <h1> at the top of each chapter file.
+   Back-matter files (Quiz Key, Acknowledgments, About the Author,
+   Bibliography, journal sections) use visible h1s with various class
+   names — capture those too so the running header updates for each
+   back-matter section instead of persisting "Chapter XVI…" from the
+   last chapter.
+   ================================================================ */
+h1.sr-only,
+h1.key-title,
+h1.ack-title,
+h1.cert-title,
+h1.bib-title,
+h1.main-heading,
+h1.section-heading,
+.key-body h1,
+.ack-body h1,
+.bio-body h1,
+.journal-body h1,
+.bib-body h1,
+.certificate-body h1,
+.worksheet-page-body h1 {
+  string-set: chapter-title content();
+}
+
+/* Hide sr-only h1 from layout entirely while keeping its text accessible
+   to string-set: chapter-title content().  We use position: absolute so
+   the element occupies NO layout slot — without this, the hidden h1
+   creates a phantom block that pushes .chap-title onto the next page
+   (result: stub opener page with only header + folio, real content one
+   page later).  position: absolute + clip-path: inset(100%) + tiny size
+   is the WCAG-standard sr-only pattern; WeasyPrint handles it correctly.
+*/
+h1.sr-only {
+  display: block !important;
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(100%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+}
+
+/* Hide the worksheet "print-only" CTA notice when we're ACTUALLY printing */
+.epub-download-cta, .worksheet-cta, .cta-section, .btn-join, .video-link, .web-only {
+  display: none !important;
+}
+
+/**
+ * pod-print.css — Standalone Print-on-Demand Stylesheet
+ * For: "Curls & Contemplation: A Stylist's Interactive Journey"
+ * By Michael David
+ *
+ * TRIM SIZE: 6.69" x 9.61" (KDP custom trim)
+ * Interior: Black & white on white paper, no bleed
+ * Binding: Perfect bound softcover
+ *
+ * This is a STANDALONE stylesheet for PDF generation.
+ * It does NOT import the EPUB style.css.
+ * Font faces are injected by the build script.
+ *
+ * Live area: 6.69" - margins = ~4.99" wide text block
+ * Gutter: 0.95" (binding side), Outside: 0.70"
+ * Top: 0.75", Bottom: 0.75"
+ */
+
+/* ====================================================================
+   2. BASE TYPOGRAPHY
+   ==================================================================== */
+html {
+  font-size: 11pt;
+}
+
+body {
+  font-family: 'Libre Baskerville', 'Montserrat', 'Cinzel Decorative', Georgia, 'Times New Roman', serif;
+  font-size: 11pt;
+  line-height: 1.65;
+  color: #000;
+  background: #fff;
+  margin: 0;
+  padding: 0;
+  orphans: 3;
+  widows: 3;
+  hyphens: none;
+  -webkit-hyphens: none;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ====================================================================
+   3. FILE / SECTION BREAKS
+   The build script wraps each XHTML file in a <div class="...">.
+   We need page breaks between files and for key section types.
+   ==================================================================== */
+
+/* Break between concatenated files — purely semantic separator.
+   All page breaks are handled by wrapper-div classes below. */
+.file-break {
+  height: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---- WRAPPER-LEVEL page breaks (exactly one break per section) ----
+   Digital-first PDF: all breaks use break-before: page (not recto/verso).
+   No named pages except cover (zero-margin). No blank pages inserted. */
+
+/* Chapter wrappers */
+.chapter-page {
+  break-before: page;
+  page-break-before: always;
+}
+
+/* Part divider wrappers */
+.part-body,
+.part-page,
+div[class*="part-body"],
+section.part-container {
+  break-before: page;
+  page-break-before: always;
+}
+
+/* Standalone quote page wrappers */
+.quote-page,
+section.image-quote,
+div.quote-page {
+  break-before: page;
+  page-break-before: always;
+}
+
+/* Frontmatter wrappers */
+.copyright-body,
+.toc-body,
+.dedication-body {
+  break-before: page;
+  page-break-before: always;
+}
+
+/* Worksheet page wrappers (frontmatter worksheets) */
+.worksheet-page-body {
+  break-before: page;
+  page-break-before: always;
+}
+
+/* ---- Backmatter body wrappers — every back-matter file starts on a new page ---- */
+.key-body,
+.ack-body,
+.bio-body,
+.journal-body,
+.certificate-body {
+  break-before: page;
+  page-break-before: always;
+  /* Cancel the EPUB flex-centering that produces blank opener pages in print */
+  display: block !important;
+  min-height: 0 !important;
+}
+
+/* Inner containers already break via their body wrapper above — cancel the
+   second break to prevent title-only opener pages */
+.profile-card,
+.ack-container,
+.journal-card,
+.backmatter-section {
+  page-break-before: auto !important;
+  break-before: auto !important;
+}
+
+/* Keep the About-the-Author title with the image + name that follow */
+.profile-card .section-heading,
+.profile-card h1 {
+  break-after: avoid !important;
+  page-break-after: avoid !important;
+  margin-top: 0 !important;
+}
+.profile-card .image-container,
+.profile-card .author-img {
+  break-before: avoid !important;
+  break-inside: avoid !important;
+  page-break-before: avoid !important;
+  page-break-inside: avoid !important;
+}
+/* Constrain author photo size so title + image fit on the opener page */
+.profile-card .author-img,
+.bio-body .author-img,
+img.author-img {
+  max-width: 2in !important;
+  max-height: 2in !important;
+  width: 2in !important;
+  height: auto !important;
+  margin: 0.5em auto 0.75em !important;
+}
+
+/* ---- Backmatter & in-chapter sections that need their own breaks ---- */
+.backmatter-card,
+.certificate-border,
+.bib-container,
+.key-container {
+  page-break-before: always;
+  break-before: page;
+}
+
+/* Chapter body, endnotes, quiz, worksheet — each starts on new page */
+.chapter-opener,
+.endnotes,
+.quiz-section,
+.worksheet-card {
+  page-break-before: always;
+  break-before: page;
+}
+
+/* Chapter body flows naturally after the opener section.
+   Removing break-before prevents an empty half-page when the
+   opener introduction doesn't fill the page completely. */
+
+/* ====================================================================
+   4. HEADINGS
+   ==================================================================== */
+h1, .frontmatter-title, .main-title {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 28pt;
+  line-height: 1.15;
+  color: #000;
+  text-align: center;
+  letter-spacing: 0.04em;
+  margin-top: 0;
+  margin-bottom: 0.6in;
+  page-break-after: avoid;
+}
+
+h1.main-title {
+  font-size: 34pt;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.35in;
+}
+
+h1.part-title {
+  font-size: 26pt;
+  margin-bottom: 0.4in;
+}
+
+h2, .subtitle, .toc-title {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 14pt;
+  font-weight: 700;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  page-break-after: avoid;
+  margin-top: 0.6in;
+  margin-bottom: 0.3in;
+}
+
+h3 {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 12pt;
+  font-weight: 700;
+  color: #000;
+  letter-spacing: 0.05em;
+  page-break-after: avoid;
+  margin-top: 0.45in;
+  margin-bottom: 0.2in;
+}
+
+h4, h5, h6 {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 11pt;
+  font-weight: 700;
+  color: #000;
+  page-break-after: avoid;
+  margin-top: 0.3in;
+  margin-bottom: 0.15in;
+}
+
+/* Prevent orphaned headings */
+h1, h2, h3, h4, h5, h6 {
+  page-break-after: avoid;
+  page-break-inside: avoid;
+}
+
+/* ====================================================================
+   5. PARAGRAPHS & BODY TEXT
+   ==================================================================== */
+p {
+  text-align: justify;
+  text-indent: 0.25in;
+  margin: 0;
+  margin-bottom: 0.15in;
+}
+
+/* First paragraph after heading — no indent */
+h1 + p, h2 + p, h3 + p, h4 + p,
+.chapter-opener + p,
+blockquote + p,
+.action-steps + p,
+.case-study + p {
+  text-indent: 0;
+}
+
+/* ====================================================================
+   6. FRONTMATTER
+   ==================================================================== */
+
+/* Title Page — luxury editorial style */
+.title-page-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 8in;
+  text-align: center;
+  border: 2pt solid #000;
+  padding: 0.8in 0.6in;
+}
+
+/* Title page: reduce main-title size to fit within the border box */
+div[class*="title-page-body"] h1.main-title {
+  font-size: 26pt;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.25in;
+}
+
+/* Copyright Page — left-aligned publishing format, airy spacing */
+.copyright-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 6.5in;
+  padding-bottom: 1in;
+}
+
+.copyright-notice,
+.copyright-statement,
+.rights-text,
+.isbn-info,
+.isbn-block,
+.publisher-info {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 9pt;
+  line-height: 1.6;
+  text-align: left;
+  margin-bottom: 0.25in;
+}
+
+.isbn-info,
+.isbn-block {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  margin-bottom: 0.3in;
+}
+
+/* Dedication — narrow centered column, elegant */
+.dedication-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 8in;
+  text-align: center;
+  max-width: 3in;
+  margin: 0 auto;
+}
+
+.dedication-title {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  margin-bottom: 0.35in;
+}
+
+.dedication-verse {
+  font-style: italic;
+  font-size: 12pt;
+  line-height: 1.8;
+  max-width: 3in;
+  margin: 0 auto;
+}
+
+.dedication-section {
+  margin-bottom: 0.25in;
+}
+
+.dedication-section strong {
+  font-weight: 700;
+}
+
+/* ====================================================================
+   7. TABLE OF CONTENTS
+   ==================================================================== */
+.toc-container,
+.toc-list {
+  max-width: 100%;
+}
+
+.toc-title {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 24pt;
+  text-align: center;
+  margin-bottom: 0.5in;
+  letter-spacing: 0.06em;
+}
+
+.toc-part-title {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 11pt;
+  font-weight: 700;
+  margin-top: 0.4in;
+  margin-bottom: 0.2in;
+  border-bottom: 1pt solid #000;
+  padding-bottom: 0.08in;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.toc-item,
+.toc-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.15in;
+  font-size: 10pt;
+  border-bottom: 1px dotted #bbb;
+  padding-bottom: 0.08in;
+}
+
+.toc-link {
+  text-decoration: none;
+  color: #000;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.toc-chapter-num {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-weight: bold;
+  min-width: 0.4in;
+  display: inline-block;
+  margin-right: 0.15in;
+}
+
+.toc-page-number {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 10pt;
+  min-width: 0.3in;
+  text-align: right;
+}
+
+/* ====================================================================
+   8. CHAPTER TITLE PAGES (Black background opener)
+   ==================================================================== */
+.chap-title,
+section.chap-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 8in;
+  text-align: center;
+  background: #000;
+  color: #fff;
+  padding: 0.6in 0.5in;
+  page-break-inside: avoid;
+}
+
+.chap-title h1,
+.chap-title h2,
+.chap-title .title-line,
+.chap-title .introduction-heading,
+.chap-title .bible-quote-text,
+.chap-title .bible-quote-reference {
+  color: #fff;
+}
+
+.chapter-number-figure {
+  position: relative;
+  width: 2in;
+  height: 1.3in;
+  margin-bottom: 0.5in;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chapter-number-brush {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 1;
+}
+
+.chapter-number-roman {
+  position: relative;
+  z-index: 2;
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 30pt;
+  color: #fff;
+  font-style: normal;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+  letter-spacing: 0.05em;
+}
+
+.title-stack {
+  margin-bottom: 0.5in;
+}
+
+.title-bar {
+  width: 0.8in;
+  height: 2pt;
+  background: #fff;
+  margin: 0 auto 0.3in;
+}
+
+.title-line {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 20pt;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  word-spacing: 0.15em;
+  font-kerning: normal;
+  line-height: 1.4;
+  color: #fff;
+  white-space: nowrap;
+}
+
+/* Bible quote on chapter opener */
+.bible-quote-container {
+  max-width: 3.5in;
+  margin: 0.35in auto;
+  padding-left: 0.2in;
+  border-left: 2pt solid #999;
+  text-align: left;
+}
+
+.bible-quote-text {
+  font-style: italic;
+  font-size: 10pt;
+  line-height: 1.5;
+  margin-bottom: 0.1in;
+  color: #ccc;
+}
+
+.bible-quote-reference {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 9pt;
+  font-weight: 600;
+  color: #ccc;
+}
+
+/* Introduction heading and drop cap on chapter opener */
+.introduction-heading {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 10pt;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.2in;
+  color: #fff;
+}
+
+.introduction-paragraph {
+  max-width: 4in;
+  text-align: justify;
+  color: #ddd;
+}
+
+.introduction-paragraph p {
+  color: #ddd;
+  text-indent: 0;
+}
+
+/* Drop cap — using initial-letter (avoids WeasyPrint float bug) */
+.introduction-paragraph p:first-of-type strong:first-child,
+.dropcap-first-letter p:first-of-type strong:first-child {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 24pt;
+  line-height: 1;
+  padding-right: 0.05in;
+  color: #fff;
+  vertical-align: baseline;
+}
+
+/* ====================================================================
+   9. PART DIVIDER PAGES
+   ==================================================================== */
+.part-body,
+.part-page,
+div[class*="part-body"] {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 8in;
+  max-height: 9in;
+  overflow: hidden;
+  text-align: center;
+}
+
+.part-container {
+  max-width: 4in;
+  padding: 0.6in;
+  border-top: 3pt solid #000;
+  border-bottom: 1pt solid #000;
+}
+
+.part-number {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 11pt;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 0.25in;
+}
+
+h2.part-subtitle {
+  font-size: 10pt;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.35in;
+}
+
+p.intro-text {
+  font-size: 10pt;
+  line-height: 1.6;
+  text-align: justify;
+  margin-bottom: 0.2in;
+  text-indent: 0;
+}
+
+p.intro-text:first-of-type::first-letter {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 24pt;
+  line-height: 1;
+  margin-right: 0.05in;
+  vertical-align: baseline;
+}
+
+/* ====================================================================
+   10. CHAPTER BODY (after the opener page)
+   ==================================================================== */
+.chap-body,
+section.chap-body,
+.content-area {
+  color: #000;
+  background: #fff;
+}
+
+.chap-body h2,
+.content-area h2 {
+  color: #000;
+}
+
+/* Drop cap on first paragraph of chapter body (Royal style) —
+   uses initial-letter instead of float (WeasyPrint compatible) */
+.chap-body .content-area > h2:first-child + p:first-letter,
+.chap-body .content-area > p:first-child:first-letter {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 36pt;
+  line-height: 1;
+  padding-right: 0.06in;
+  vertical-align: baseline;
+  color: #000;
+}
+
+/* Page break helper used in XHTML source files.
+   DISABLED in POD print: element-level break-before rules handle all breaks.
+   Keeping the div inert prevents double-breaks with wrapper/element rules. */
+.page-break {
+  height: 0;
+  margin: 0;
+  padding: 0;
+  display: none;
+}
+
+/* ====================================================================
+   11. BLOCKQUOTES & QUOTES
+   ==================================================================== */
+blockquote {
+  margin: 0.35in 0.5in;
+  padding: 0;
+  font-style: italic;
+  font-size: 10.5pt;
+  border-left: 2pt solid #666;
+  padding-left: 0.25in;
+}
+
+blockquote cite,
+.quote-attribution {
+  display: block;
+  font-style: normal;
+  font-size: 9pt;
+  text-align: right;
+  margin-top: 0.1in;
+}
+
+/* Full-page image quote pages — breaks handled by .quote-page wrapper */
+.quote-page,
+.image-quote,
+section.image-quote {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 8in;
+  text-align: center;
+  padding: 0.25in;
+}
+
+.quote-figure {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.quote-figure img {
+  width: 100%;
+  max-height: 8.5in;
+  object-fit: contain;
+}
+
+/* ====================================================================
+   12. ACTION STEPS & CASE STUDIES
+   ==================================================================== */
+.action-steps {
+  border: 1pt solid #000;
+  border-left: 4pt solid #000;
+  padding: 0.3in;
+  margin: 0.4in 0;
+  background: #f9f9f9;
+  page-break-inside: avoid;
+}
+
+.action-steps h2 {
+  font-size: 10pt;
+  margin-top: 0;
+  margin-bottom: 0.15in;
+  border-bottom: none;
+}
+
+.action-steps ol, .action-steps ul {
+  margin: 0;
+  padding-left: 0.3in;
+}
+
+.action-steps li {
+  margin-bottom: 0.1in;
+  font-size: 10pt;
+}
+
+.case-study {
+  border: 1pt solid #666;
+  padding: 0.2in;
+  margin: 0.25in 0;
+  background: #fafafa;
+  page-break-inside: avoid;
+}
+
+/* ====================================================================
+   13. WORKSHEETS & INTERACTIVE ELEMENTS
+   ==================================================================== */
+.worksheet-card {
+  border: 2pt solid #000;
+  padding: 0.35in;
+  margin: 0.35in 0;
+  background: #fff;
+  page-break-inside: avoid;
+}
+
+.worksheet-header {
+  margin-bottom: 0.3in;
+  text-align: center;
+  padding-bottom: 0.2in;
+  border-bottom: 1pt solid #ccc;
+}
+
+.worksheet-title {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 16pt;
+  text-align: center;
+  margin-bottom: 0.15in;
+  letter-spacing: 0.04em;
+}
+
+.worksheet-instructions {
+  font-size: 9pt;
+  font-style: italic;
+  text-align: center;
+  margin-bottom: 0.25in;
+}
+
+.question-card {
+  margin-bottom: 0.35in;
+  page-break-inside: avoid;
+  padding-bottom: 0.15in;
+  border-bottom: 0.5pt solid #e0e0e0;
+}
+
+.question-header {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 0.15in;
+}
+
+.question-number {
+  width: 0.2in;
+  height: 0.2in;
+  border: 1pt solid #000;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 0.2in;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 8pt;
+  margin-right: 0.1in;
+  flex-shrink: 0;
+}
+
+.question-text,
+.prompt-text {
+  font-weight: bold;
+  font-size: 10pt;
+}
+
+/* Writing lines for journals and worksheets */
+.answer-lines,
+.writing-lines,
+.writing-area {
+  margin-top: 0.15in;
+}
+
+.answer-line,
+.writing-line,
+.line {
+  border-bottom: 0.5pt solid #000;
+  height: 0.35in;
+  margin-bottom: 0;
+}
+
+/* Ruled paper effect for journal pages */
+.ruled-paper-bg {
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 0.30in,
+    #ccc 0.305in
+  );
+  line-height: 0.305in;
+  min-height: 4in;
+}
+
+/* Rating scales */
+.rating-circles {
+  display: flex;
+  gap: 0.15in;
+  margin-top: 0.1in;
+}
+
+.rating-circle {
+  width: 0.25in;
+  height: 0.25in;
+  border: 1pt solid #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8pt;
+}
+
+/* Checkboxes */
+.checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.1in;
+}
+
+.checkbox {
+  width: 0.15in;
+  height: 0.15in;
+  border: 1pt solid #000;
+  margin-right: 0.1in;
+  flex-shrink: 0;
+}
+
+/* Prompt cards */
+.prompt-card {
+  margin-bottom: 0.25in;
+  page-break-inside: avoid;
+}
+
+.prompt-badge {
+  display: inline-block;
+  padding: 0.03in 0.1in;
+  border: 1pt solid #000;
+  border-radius: 0.1in;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: #f0f0f0;
+}
+
+/* ====================================================================
+   14. TABLES
+   ==================================================================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.25in 0;
+  font-size: 9pt;
+}
+
+th {
+  background: #e0e0e0;
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 9pt;
+  padding: 0.1in;
+  border: 1pt solid #000;
+  text-align: left;
+}
+
+td {
+  padding: 0.08in;
+  border: 0.5pt solid #666;
+  vertical-align: top;
+}
+
+tr:nth-child(even) {
+  background: #f5f5f5;
+}
+
+/* Quiz Answer Key */
+.answer-table th {
+  background-color: #e0e0e0;
+  color: #000;
+  text-align: center;
+}
+
+.answer-table td {
+  text-align: center;
+}
+
+.chapter-col {
+  font-weight: bold;
+}
+
+/* ====================================================================
+   15. BIBLIOGRAPHY
+   ==================================================================== */
+.bib-container {
+  max-width: 100%;
+}
+
+.bib-title {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 18pt;
+  text-align: center;
+  margin-bottom: 0.35in;
+}
+
+.bib-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bib-entry {
+  padding-left: 0.35in;
+  text-indent: -0.35in;
+  margin-bottom: 0.12in;
+  font-size: 9pt;
+  line-height: 1.4;
+}
+
+.bib-entry a {
+  color: #000;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+/* ====================================================================
+   16. FOOTNOTES & ENDNOTES
+   ==================================================================== */
+.footnotes, .endnotes {
+  margin-top: 0.5in;
+  padding-top: 0.2in;
+  border-top: 0.5pt solid #000;
+  font-size: 9pt;
+}
+
+.footnotes h2, .endnotes h2 {
+  font-size: 10pt;
+  margin-bottom: 0.15in;
+}
+
+.footnotes ol, .endnotes ol {
+  padding-left: 0.3in;
+  margin: 0;
+}
+
+.footnotes li, .endnotes li {
+  margin-bottom: 0.1in;
+  line-height: 1.4;
+}
+
+sup {
+  font-size: 7pt;
+  vertical-align: super;
+}
+
+sup a {
+  color: #000;
+  text-decoration: none;
+}
+
+/* ====================================================================
+   17. CERTIFICATES & SPECIAL PAGES
+   ==================================================================== */
+.certificate-border {
+  border: 4pt double #000;
+  padding: 0.5in;
+  margin: 0.5in 0;
+  text-align: center;
+  background: #fff;
+  position: relative;
+  page-break-inside: avoid;
+}
+
+.certificate-title {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 18pt;
+  margin-bottom: 0.35in;
+}
+
+.corner-deco {
+  position: absolute;
+  width: 0.5in;
+  height: 0.5in;
+  border-style: solid;
+  border-color: #000;
+  border-width: 2pt;
+}
+
+.tl, .top-left { top: 0.15in; left: 0.15in; border-right: 0; border-bottom: 0; }
+.tr, .top-right { top: 0.15in; right: 0.15in; border-left: 0; border-bottom: 0; }
+.bl, .bottom-left { bottom: 0.15in; left: 0.15in; border-right: 0; border-top: 0; }
+.br, .bottom-right { bottom: 0.15in; right: 0.15in; border-left: 0; border-top: 0; }
+
+.signature-section {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5in;
+}
+
+.signature-field {
+  width: 2in;
+  text-align: center;
+}
+
+.signature-line {
+  border-bottom: 1pt solid #000;
+  height: 0.35in;
+  margin-bottom: 0.05in;
+}
+
+.signature-label {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ====================================================================
+   18. IMAGES & FIGURES
+   ==================================================================== */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+figure {
+  margin: 0.25in 0;
+  text-align: center;
+  page-break-inside: avoid;
+}
+
+figcaption {
+  font-size: 9pt;
+  font-style: italic;
+  margin-top: 0.1in;
+}
+
+.cover-image {
+  max-width: 100%;
+  height: auto;
+}
+
+.author-photo {
+  max-width: 2in;
+  border: 1pt solid #000;
+}
+
+/* ====================================================================
+   19. LINKS — PRINT TREATMENT
+   ==================================================================== */
+a {
+  color: #000;
+  text-decoration: none;
+}
+
+/* Show URLs after external links */
+a[href^="http"]:after {
+  content: " (" attr(href) ")";
+  font-size: 8pt;
+  word-break: break-all;
+}
+
+/* Suppress for internal links */
+a[href^="#"]:after,
+a[href^="xhtml/"]:after,
+a[href^="../"]:after {
+  content: none;
+}
+
+/* Suppress URL duplication in endnotes/footnotes (URL is already visible as link text) */
+.footnote-item a[href^="http"]:after,
+.endnotes a[href^="http"]:after,
+.footnotes a[href^="http"]:after,
+.note-item a[href^="http"]:after,
+.bib-entry a[href^="http"]:after {
+  content: none;
+}
+
+/* ====================================================================
+   20. ABOUT THE AUTHOR
+   ==================================================================== */
+.about-author-section {
+  display: flex;
+  gap: 0.35in;
+  align-items: flex-start;
+}
+
+.author-bio {
+  flex: 1;
+  font-size: 10pt;
+  line-height: 1.5;
+}
+
+/* Author name on title page — positioned in bottom third */
+.author-name {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 16pt;
+  margin-top: auto;
+  letter-spacing: 0.08em;
+}
+
+/* ====================================================================
+   21. JOURNAL & DOODLE PAGES
+   ==================================================================== */
+.journal-page,
+.doodle-page {
+  min-height: 7.5in;
+  page-break-inside: avoid;
+}
+
+.journal-page .writing-area {
+  min-height: 5.5in;
+}
+
+.doodle-page {
+  border: 1pt dashed #999;
+  padding: 0.25in;
+}
+
+/* ====================================================================
+   22. DECORATIVE ELEMENTS
+   ==================================================================== */
+.decorative-line {
+  height: 1pt;
+  width: 1.5in;
+  background: #000;
+  margin: 0.25in auto;
+  border: none;
+}
+
+.elegant-divider {
+  height: 2pt;
+  width: 100%;
+  background: linear-gradient(90deg, transparent, #000, transparent);
+  margin: 0.35in 0;
+  opacity: 0.5;
+}
+
+.rule-gold {
+  border: none;
+  height: 1pt;
+  background: #999;
+  margin: 0.25in 0;
+}
+
+/* ====================================================================
+   23. LISTS
+   ==================================================================== */
+ol, ul {
+  padding-left: 0.35in;
+  margin: 0.1in 0;
+}
+
+li {
+  margin-bottom: 0.08in;
+  page-break-inside: avoid;
+}
+
+/* Keep list items together with their content */
+.question-card,
+.prompt-card,
+.journal-entry,
+.bib-entry,
+.toc-item,
+.signature-section,
+.rating-section,
+.checklist-item,
+.action-steps,
+.case-study,
+blockquote,
+figure,
+table {
+  page-break-inside: avoid;
+}
+
+/* ====================================================================
+   24. HIDE WEB/EPUB-ONLY ELEMENTS
+   ==================================================================== */
+.cta-section,
+.btn-join,
+.video-link,
+.web-only,
+.epub-download-cta,
+.worksheet-cta {
+  display: none !important;
+}
+
+/* Screen-reader-only spans must also be hidden in PDF
+   (otherwise drop-cap duplicates the first letter: "TThe") */
+.sr-only {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Full-page image-quote pages render as solid black in POD PDF —
+   hide them; they remain visible in EPUB */
+div[data-source="7a-preface-quote.xhtml"],
+div[data-source="28a-conclusion-quote.xhtml"] {
+  display: none !important;
+}
+
+/* nav[role="doc-toc"] is the printed TOC — do NOT hide it */
+nav[role="doc-toc"] {
+  display: block !important;
+}
+
+/* ====================================================================
+   25. PRINT RESETS
+   ==================================================================== */
+* {
+  box-shadow: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Ensure backgrounds print correctly (for chapter openers) */
+* {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* ====================================================================
+   26. FOOTER (from XHTML)
+   ==================================================================== */
+.footer-section {
+  margin-top: 0.5in;
+  padding-top: 0.15in;
+  border-top: 0.5pt solid #000;
+  text-align: center;
+}
+
+.footer-text {
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ====================================================================
+   27. BACKMATTER-SPECIFIC
+   ==================================================================== */
+.backmatter-card {
+  padding: 0.25in;
+}
+
+.key-container {
+  max-width: 100%;
+}
+
+.key-title {
+  font-family: 'Cinzel Decorative', Georgia, serif;
+  font-size: 18pt;
+  text-align: center;
+  margin-bottom: 0.35in;
+}
+
+/* Affirmation / commitment sections */
+.affirmation-item,
+.commitment-item {
+  margin-bottom: 0.2in;
+}
+
+.commitment-arrow {
+  font-size: 14pt;
+}
+
+/* ====================================================================
+   BACKMATTER FLOW — compact short backmatter items onto fewer pages
+   ==================================================================== */
+
+/* Backmatter flow: each file starts on a new page */
+.backmatter-flow .backmatter-item {
+  page-break-before: always;
+  break-before: page;
+}
+/* First backmatter item doesn't need a break (container already broke) */
+.backmatter-flow .backmatter-item:first-child {
+  page-break-before: auto;
+  break-before: auto;
+}
+
+/* ====================================================================
+   TOC — Automatic page numbers via CSS target-counter
+   (WeasyPrint resolves target-counter() at layout time, so page
+    numbers match exactly where each section lands in this PDF.)
+   ==================================================================== */
+
+/* Hide the empty static span; the ::after pseudo-element replaces it */
+.toc-entry .toc-page-number {
+  display: none !important;
+}
+
+/* Dot leader + auto page number after every TOC link */
+.toc-entry a.toc-link {
+  display: flex;
+  align-items: baseline;
+  text-decoration: none;
+  color: #000;
+}
+
+.toc-entry a.toc-link::after {
+  content: target-counter(attr(href), page);
+  font-family: 'Montserrat', Arial, sans-serif;
+  font-size: 9pt;
+  font-weight: 400;
+  color: #333;
+  flex-shrink: 0;
+  min-width: 0.35in;
+  text-align: right;
+  order: 1;
+}
+
+/* Dot leader between title and page number */
+.toc-entry a.toc-link .toc-dot-leader {
+  flex: 1;
+  border-bottom: 1pt dotted #999;
+  margin: 0 0.1in;
+  position: relative;
+  bottom: 0.15em;
+  order: 0;
+}
+
+/* Cover page: zero-margin full-bleed, no folio */
+@page cover-page {
+  margin: 0;
+  @bottom-center { content: none; }
+}
+
+/* Assign cover to its named page (zero margins, no folio) */
+div[class*="cover-body"] { page: cover-page; }
+
+/* ====================================================================
+   TEXT EXTRACTION FIX — Reduce letter-spacing on headings
+   WeasyPrint's text layer inserts actual spaces when letter-spacing is
+   applied with text-transform: uppercase, causing "I NTRODUCTION",
+   "C HAPTERS", "CONTEMPL ATION" in the PDF text layer. Setting
+   letter-spacing to a very small value preserves visual spread while
+   keeping text extraction clean.
+   ==================================================================== */
+h2, .subtitle, .toc-title,
+h2.part-subtitle,
+.introduction-heading {
+  letter-spacing: 0.02em;
+}
+
+/* Remove ::first-letter drop caps that break text extraction.
+   The XHTML source already uses <strong> tags for drop caps where needed.
+   ::first-letter separates the first character in the text layer. */
+p.intro-text:first-of-type::first-letter,
+.chap-body .content-area > h2:first-child + p:first-letter,
+.chap-body .content-area > p:first-child:first-letter {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  margin-right: 0;
+  padding-right: 0;
+  letter-spacing: 0;
+}
+
+/* ====================================================================
+   END OF POD PRINT STYLESHEET — 6.69" x 9.61"
+   ==================================================================== */
+
+
+/* ============================================================
+   PRINT OVERRIDES for style.css rules that target digital aesthetic
+   ============================================================ */
+
+/* Chapter opener dark background (eco-luxe digital spec) → white for print */
+.chap-title,
+section.chap-title,
+div[class*="chapter-page"] .chap-title {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  min-height: auto !important;
+}
+
+/* Chapter number roman numeral — keep contrast on white */
+.chapter-number-roman {
+  color: #000000 !important;
+}
+
+/* Title stack text */
+.chap-title .title-line,
+.chap-title .title-bar {
+  color: #000000 !important;
+  background-color: #000000 !important;
+}
+.chap-title .title-line {
+  background-color: transparent !important;
+  color: #000000 !important;
+}
+
+/* Bible quote text + reference */
+.bible-quote-text,
+.bible-quote-reference {
+  color: #000000 !important;
+}
+
+/* Also: any quote-page that might have dark styling */
+.quote-page {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Introduction heading + paragraphs + drop cap — force black for print.
+   EPUB spec has these as white/light-gray for dark chapter-opener design;
+   print needs visible black ink. */
+.introduction-heading {
+  color: #000000 !important;
+}
+.introduction-paragraph,
+.introduction-paragraph p,
+.dropcap-first-letter,
+.dropcap-first-letter p {
+  color: #000000 !important;
+}
+.introduction-paragraph p:first-of-type strong:first-child,
+.dropcap-first-letter p:first-of-type strong:first-child,
+.drop-cap {
+  color: #000000 !important;
+}
+
+/* Cancel the full-page flex-centering on section.chap-title for print.
+   The flex container with min-height: 8in + justify-content: center was
+   clamping Introduction + paragraphs + signature into the centered box,
+   causing content to be hidden/clipped off the page. Using display:block
+   lets the opener decoratives (figure / title-stack / bible-quote — which
+   live on page: chapter-opener) render on their own page, and the
+   Introduction content then flows onto the default @page with folio +
+   running header. */
+section.chap-title,
+.chap-title,
+div[class*="chapter-page"] .chap-title {
+  display: block !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 0.4in 0 !important;
+  page-break-inside: auto !important;
+  break-inside: auto !important;
+  text-align: center;
+}
+section.chap-title > .introduction-heading,
+section.chap-title > .introduction-paragraph,
+section.chap-title > .dropcap-first-letter,
+section.chap-title > .signature-section {
+  text-align: left;
+  max-width: 4.5in;
+  margin-left: auto;
+  margin-right: auto;
+}
+section.chap-title > .introduction-heading {
+  text-align: left;
+  margin-top: 0.25in;
+}
+
+/* ================================================================
+   Fix fallback-font triggers: force ALL nested ul levels to disc (•),
+   not circle (◦) which no design-system font contains.
+   Also override checkmark pseudo-element content to use a glyph
+   our fonts actually have.
+   ================================================================ */
+ul, ul ul, ul ul ul, ol ul, ul ol {
+  list-style-type: disc !important;
+}
+
+/* ================================================================
+   VISUAL LAYOUT REPAIR OVERRIDES (RC QA pass)
+   - remove recto-only blank insertions
+   - center chapter marker brush/roman over title stack
+   - keep quiz / worksheet / image quote on separate section pages
+   ================================================================ */
+div[class*="chapter-page"],
+div[class*="part-body"],
+div[class*="quote-page"] {
+  break-before: auto !important;
+  page-break-before: auto !important;
+}
+
+section.chap-title,
+section.part-container,
+section.part-divider,
+section.part-title,
+.part-title,
+.part-divider {
+  break-before: page !important;
+  page-break-before: always !important;
+}
+
+.chap-title .chapter-number-figure {
+  position: relative !important;
+  display: block !important;
+  width: 1.5in !important;
+  height: 1in !important;
+  margin: 0 auto 0.35in auto !important;
+  padding: 0 !important;
+  text-align: center !important;
+  align-self: center !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+}
+
+.chap-title .chapter-number-brush {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  margin: 0 auto !important;
+}
+
+.chap-title .chapter-number-roman {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.quiz-container,
+.chap-quiz {
+  break-before: page !important;
+  page-break-before: always !important;
+  break-after: auto !important;
+  page-break-after: auto !important;
+  break-inside: auto !important;
+  page-break-inside: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+section.worksheet,
+.worksheet.page,
+.worksheet.page-break-before {
+  break-before: page !important;
+  page-break-before: always !important;
+  break-after: auto !important;
+  page-break-after: auto !important;
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+section.image-quote {
+  break-before: page !important;
+  page-break-before: always !important;
+  break-after: auto !important;
+  page-break-after: auto !important;
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+/* Pseudo-elements that emit non-ASCII glyphs (✓ checkmarks, URL markers, TOC
+   leaders, page numbers) need an explicit font-family fallback so WeasyPrint
+   doesn't drop to Noto Color Emoji. Scoped to the exact rules that use them —
+   no universal selector, no collateral damage to icon fonts elsewhere. */
+.pledge-list li::before,
+.key-takeaways li::before,
+.mcq-item::before,
+.toc-entry a.toc-link::after,
+a[href^="http"]::after,
+a[href^="http"]:after {
+  font-family: 'Libre Baskerville', 'Montserrat', serif;
+}
