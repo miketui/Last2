@@ -217,3 +217,14 @@ TURNSTILE_SECRET_KEY=
 - Turnstile checklist: site key, secret key, allowed domains, and route-level verification before enabling as required.
 - GA4/PostHog optional setup must honor consent; internal operational analytics may record server-side order/security/download events.
 - Production activation remains blocked until legal, domain, payment, RLS, download, email, consent, and support QA gates pass.
+
+## Prompt 6 sandbox credential gate and production lock
+
+- Sandbox credentials may be used only in local `.env.local`, local `.env.sandbox`, or Vercel Preview env scopes. They must never be committed.
+- Production/live keys are blocked until Michael approves legal copy, launch QA, domain/email DNS, payment setup, and download fulfillment.
+- Run `cd apps/author-site && pnpm check:sandbox` before any preview deploy. Missing sandbox credentials should be documented as skipped; live Stripe key patterns must fail.
+- Supabase verification gate: apply `apps/author-site/supabase/migrations/0001_author_commerce.sql`, verify RLS for anon/auth/admin/service-role behavior, create private bucket `curls-deliverables`, upload locked EPUB/PDF object paths, and confirm no public paid file access.
+- Stripe verification gate: create test-mode products/prices for `$17.99` preorder and `$19.99` regular direct, configure `/api/stripe/webhook`, replay `checkout.session.completed`, `checkout.session.expired`, and `charge.refunded`, and confirm refunds revoke entitlements.
+- Email provider gate: Resend sandbox sends must pass for order, download, free chapter, bonus claim, refund/access revoked, and support receipt; MailerLite sandbox groups must accept add/update and group assignment without production broadcasts.
+- Turnstile/analytics gate: Turnstile test keys should verify high-risk forms or skip explicitly; analytics consent must block marketing events until consent while internal operational events avoid signed URLs, secrets, tokens, and full PII.
+- Production lock gate: live Stripe/Supabase/Resend/MailerLite credentials, production Vercel env, live subscription offers, and public launch remain blocked after Prompt 6.
