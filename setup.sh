@@ -60,7 +60,7 @@ install_epubcheck() {
   log "Installing latest EPUBCheck from W3C GitHub release"
   local tmp url jar_dir jar
   tmp="$(mktemp -d)"
-  trap 'rm -rf "$tmp"' RETURN
+  trap '[[ -n "${tmp:-}" ]] && rm -rf "$tmp"; trap - RETURN' RETURN
 
   url="$(curl -fsSL https://api.github.com/repos/w3c/epubcheck/releases/latest \
     | jq -r '.assets[] | select(.name | test("epubcheck-.*\\.zip$")) | .browser_download_url' \
@@ -201,6 +201,7 @@ if [[ -n "$EPUB" && -f "$EPUB" ]]; then
   mapfile -d '' html_files < <(find "$EPUB_DIR" -type f \( -iname '*.xhtml' -o -iname '*.html' -o -iname '*.svg' -o -iname '*.css' \) -print0)
 
   if need_cmd xmllint && [[ ${#xml_files[@]} -gt 0 ]]; then
+    # shellcheck disable=SC2016 # Deliberately pass a single-quoted script to bash -lc.
     run_check "XML/XHTML well-formedness" "$OUT/xml-wellformedness.txt" \
       bash -lc 'for f in "$@"; do xmllint --noout "$f" || exit 1; done' _ "${xml_files[@]}"
   else
@@ -217,10 +218,15 @@ else
 fi
 
 if [[ -n "$PDF" && -f "$PDF" ]]; then
+  # shellcheck disable=SC2015 # Preserve optional-check semantics: skip absent tools and continue after recorded failures.
   need_cmd qpdf      && run_check    "qpdf structural check" "$OUT/qpdf.txt" qpdf --check "$PDF" || true
+  # shellcheck disable=SC2015 # Preserve optional-check semantics: skip absent tools and continue after recorded failures.
   need_cmd pdfinfo   && run_check    "PDF metadata / page count" "$OUT/pdfinfo.txt" pdfinfo "$PDF" || true
+  # shellcheck disable=SC2015 # Preserve optional-check semantics: skip absent tools and continue after advisory warnings.
   need_cmd pdffonts  && run_advisory "PDF font embedding inventory" "$OUT/pdffonts.txt" pdffonts "$PDF" || true
+  # shellcheck disable=SC2015 # Preserve optional-check semantics: skip absent tools and continue after recorded failures.
   need_cmd pdftotext && run_check    "PDF text extraction" "$OUT/pdftotext.txt" pdftotext -layout "$PDF" "$OUT/pdf-text.txt" || true
+  # shellcheck disable=SC2015 # Preserve optional-check semantics: skip absent tools and continue after recorded failures.
   need_cmd gs        && run_check    "Ghostscript render/nullpage" "$OUT/ghostscript.txt" gs -q -dNOPAUSE -dBATCH -sDEVICE=nullpage "$PDF" || true
 else
   fail_step "No PDF found or PDF path invalid"
@@ -405,6 +411,7 @@ fi
 [[ -f "$EPUB" ]] || { echo "EPUB not found: $EPUB" >&2; exit 2; }
 [[ -f "$PDF"  ]] || { echo "PDF not found: $PDF" >&2; exit 2; }
 
+# shellcheck disable=SC1091 # The setup script creates this project-local venv.
 source .venv/bin/activate
 ./tools/validate-publishing.sh "$EPUB" "$PDF" || true
 STAMP="$(readlink validation-reports/latest)"
