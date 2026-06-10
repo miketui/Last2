@@ -1,0 +1,3 @@
+import Link from "next/link";
+const links = ["privacy", "terms", "refund-policy", "preorder-policy", "digital-delivery-policy", "cookies", "accessibility", "contact"];
+export function Footer() { return <footer className="border-t border-whitegold/10 px-6 py-10"><div className="mx-auto max-w-6xl"><p className="font-display text-2xl text-white">Curls & Contemplation</p><p className="mt-2 text-sm text-whitegold/70">Protected direct digital delivery scaffold. Legal copy requires human review.</p><nav className="mt-6 flex flex-wrap gap-4 text-sm text-whitegold/70">{links.map((link) => <Link key={link} href={`/${link}`}>{link}</Link>)}</nav></div></footer>; }

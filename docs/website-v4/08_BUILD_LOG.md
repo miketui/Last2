@@ -54,3 +54,55 @@ Create the full v4 planning/spec package under `docs/website-v4/` only. Do not s
 
 ## Recommendation for Prompt 3
 Scaffold `apps/author-site/` as a strict TypeScript Next.js App Router project using the specs in `docs/website-v4/01` through `11`; implement route shells, ACISS tokens, core components, typed config, `.env.example` variable names only, Supabase migrations, Stripe test-mode route handlers with signature-verified webhook, protected-download server logic, MailerLite/Resend typed integration stubs, tests, and then run `pnpm install`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build` from `apps/author-site/`.
+
+## Prompt 3 — Next.js author-commerce app scaffold (2026-06-10)
+
+### Scope
+- Created the actual app scaffold under `apps/author-site/` using Next.js App Router, TypeScript strict, Tailwind, Supabase, Stripe, Resend, MailerLite, analytics, and Vercel-ready conventions.
+- Did not modify EPUB, POD, release, archive, or publishing build files.
+- Did not copy paid release artifacts into `apps/author-site/public/`.
+- Did not add real API keys or live payment credentials.
+- Did not activate a live subscription offer; membership/subscription items remain schema/env placeholders only.
+
+### App files created
+- Core app config: `package.json`, `next.config.ts`, `tsconfig.json`, `tailwind.config.ts`, `postcss.config.mjs`, `eslint.config.mjs`, `vitest.config.ts`, `middleware.ts`, `.env.example`, `README.md`.
+- App Router pages: public, auth/customer, admin, API, dynamic chapter, and dynamic blog routes from the Prompt 3 route list.
+- Components: shared commerce/editorial/auth/legal components plus motion/design components for curl trail, magnetic CTA, page transition, scroll reveal, book tilt, and chapter pathway.
+- Content/config: `content/site.ts`, `content/book.ts`, `content/chapters.ts`, `content/blog.ts`, `content/worksheets.ts`, `content/faq.ts`, `content/legal-outlines.ts`.
+- Libraries: launch mode, env parsing, Supabase clients, Stripe wrapper, entitlements/download signing, email wrappers, analytics/event recording, SEO/schema, admin security, and subscription placeholder modules.
+- Supabase migration: `supabase/migrations/0001_author_commerce.sql` with required commerce/customer/analytics/admin tables, RLS enablement, customer self-read policies, service-role/admin intent, and subscription-ready placeholders.
+- Tests: launch CTA switching, locked prices, no paid files in public, deprecated hex guard, non-buyer entitlement denial, bad/missing Stripe webhook signature 400, and analytics event exports.
+
+### Commands run and results
+- `cd apps/author-site && pnpm install` — passed. Installed Next.js 16.2.9, React 19.2.7, Stripe 22.2.0, Supabase JS 2.108.1, Tailwind 3.4.19, Vitest 4.1.8, and supporting packages. Initial install warned about ignored optional build scripts and peer ranges but completed.
+- `cd apps/author-site && pnpm lint` — initially failed because ESLint 10 was incompatible with `eslint-config-next` peer plugins; fixed by pinning ESLint and `@eslint/js` to the ESLint 9 line. A follow-up lint error for `React.ReactNode` and anonymous config export was fixed. Final rerun passed.
+- `cd apps/author-site && pnpm typecheck` — initially failed because TypeScript 6 flagged `baseUrl` deprecation and then caught Button prop narrowing plus a pinned Stripe API-version mismatch. Added `ignoreDeprecations`, narrowed Button props safely, and let Stripe use the installed SDK default API version. Final reruns passed.
+- `cd apps/author-site && pnpm test` — initially failed because the deprecated-color test included the forbidden hex strings in its own source. Reworked the test to construct the patterns without committing forbidden hex literals. Final rerun passed: 6 files, 9 tests.
+- `cd apps/author-site && pnpm build` — passed. Next generated 49 app routes successfully. Build emitted a framework warning that the `middleware` convention is deprecated in favor of `proxy`, but the requested `middleware.ts` remains in place for Prompt 3 compatibility.
+- `grep -RIn --exclude-dir=node_modules --exclude-dir=.next -E '#0E0D0B|#B89968|#1F6F6B|#2B9999|#C9A961' apps/author-site docs/website-v4 || true` — completed. Matches are only in the locked docs token spec where deprecated colors are documented as forbidden; no new app-code usage was reported.
+- `find apps/author-site/public -type f | grep -Ei '.(epub|pdf)$' && exit 1 || true` — passed with no EPUB/PDF files in public.
+
+### Fixes applied
+- Pinned ESLint to a compatible major line for `eslint-config-next`.
+- Added TypeScript 6 deprecation acknowledgement for `baseUrl`.
+- Fixed `Button` link/button prop narrowing.
+- Removed stale explicit Stripe API version to compile against installed Stripe SDK types.
+- Adjusted static security test so it does not itself contain deprecated color literals.
+
+### What is real vs scaffolded
+Real in this scaffold:
+- Route tree, app configuration, ACISS tokens, locked price config, launch-mode CTA switching, server-side checkout price selection, webhook signature verification path, protected download denial/signing path, admin allowlist gate, private Storage object-path references, event map, internal analytics insert scaffold, and Supabase migration/RLS intent.
+
+Still scaffolded / requires production setup:
+- Supabase project credentials, actual private Storage bucket upload, Stripe live/test products and webhook endpoint, MailerLite groups/automations, Resend templates, Turnstile verification, real admin data views, GA4/PostHog browser activation, final legal copy, final domain, final external Kindle/paperback links, and production deployment.
+
+### Security notes
+- No `.env` values or real credentials were committed.
+- Paid EPUB/PDF artifacts were not copied into `public/`.
+- Checkout fails closed when Stripe server env/price IDs are absent.
+- Webhook rejects missing/bad signature with 400.
+- Downloads deny by default when no authenticated entitlement is found.
+- Admin pages are noindex and gated by an `ADMIN_EMAILS` scaffold; production should also back this with `admin_users` table checks.
+
+### Recommendation for Prompt 4
+Prompt 4 should harden the immersive design/motion pass: convert `middleware.ts` to the newer Next.js `proxy` convention while preserving requested protections, refine responsive page layouts, expand reduced-motion testing, add screenshots for the visible home/preorder/download states, and replace placeholder copy with final claim-verified excerpts from `06_WEBSITE_COPY_v4.md` without inventing new claims.

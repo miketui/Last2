@@ -1,0 +1,5 @@
+.experience-surface {
+  background:
+    radial-gradient(circle at top left, rgba(176, 141, 87, 0.18), transparent 30rem),
+    linear-gradient(135deg, var(--aciss-obsidian), #111111 58%, var(--aciss-deep-jade));
+}

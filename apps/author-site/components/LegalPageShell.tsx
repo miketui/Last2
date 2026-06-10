@@ -1,0 +1,2 @@
+import type { ReactNode } from "react";
+export function LegalPageShell({ title, children }: { title: string; children: ReactNode }) { return <main className="mx-auto max-w-3xl px-6 py-16"><p className="editorial-kicker">Legal outline</p><h1 className="mt-4 font-display text-5xl text-white">{title}</h1><div className="mt-8 space-y-4 text-whitegold/80">{children}</div><p className="mt-8 rounded-2xl border border-antique/30 p-4 text-sm">Outline only. Human/attorney review required before production.</p></main>; }

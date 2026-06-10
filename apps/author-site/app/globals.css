@@ -1,0 +1,12 @@
+@import "../styles/aciss-tokens.css";
+@import "../styles/typography.css";
+@import "../styles/motion.css";
+@import "../styles/page-experiences.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { background: var(--aciss-obsidian); color: var(--aciss-white-gold); }
+body { margin: 0; font-family: var(--font-body), system-ui, sans-serif; }
+a { color: inherit; }
+::selection { background: var(--aciss-antique-gold); color: var(--aciss-obsidian); }
