@@ -115,3 +115,20 @@ No app scaffold, credentials, live payment activation, or release/book/build/arc
 - [ ] Review final production cover art placement when approved; current book visual is a CSS mockup, not a release asset copy.
 - [ ] Re-check all public credibility language against `marketing/website/claims-evidence.md` immediately before launch.
 - [ ] Confirm no EPUB/PDF files exist under `apps/author-site/public/` before deployment.
+
+## Prompt 5 backend/security/payment/download/email/analytics QA additions
+
+- [ ] Apply `apps/author-site/supabase/migrations/0001_author_commerce.sql` to a Supabase sandbox and verify every RLS policy with anon, authenticated customer, admin, and service-role clients.
+- [ ] Create private Supabase Storage bucket `curls-deliverables` with no public read policy.
+- [ ] Upload EPUB to `books/curls-and-contemplation/epub/Curls-and-Contemplation-v8-20260610.epub` and PDF to `books/curls-and-contemplation/pdf/CurlsAndContemplation-POD-Royal-v8-20260610.pdf` in the private bucket.
+- [ ] Confirm `/api/downloads/sign` returns typed denials for unauthenticated, no purchase, refunded, revoked, over-limit, config-missing, and storage-error cases.
+- [ ] Confirm signed download URLs expire after 24 hours and do not reveal local `release/` or app `public/` paths.
+- [ ] Create Stripe test-mode preorder and regular one-time prices; verify checkout ignores client-provided price IDs and chooses server-side env price IDs.
+- [ ] Configure Stripe test webhook endpoint at `/api/stripe/webhook`; replay missing/bad signature, checkout completed, expired checkout, and refund events.
+- [ ] Confirm refund webhook sets purchase status to refunded/revoked and prevents future downloads.
+- [ ] Configure MailerLite groups for Subscribers, Free Chapter, Preorders, Customers, Abandoned Checkout, Bonus Claim Started, Bonus Claim Completed, Refunded, Blog Readers, and VIP / Early Readers.
+- [ ] Configure Resend verified sender plus SPF/DKIM/DMARC before any real recipient send.
+- [ ] Confirm free chapter route never returns a fake public download URL when email/provider assets are not configured.
+- [ ] Confirm consent banner blocks marketing analytics until consent is granted while server operational events still record security/order/download events.
+- [ ] Verify admin pages are noindex, deny non-admins, and show “connect Supabase to view real data” scaffold state until sandbox admin data is wired.
+- [ ] Run static checks for no `.env.local`, no secret-looking values, no paid EPUB/PDF in public, no deprecated hexes, raw-body Stripe webhook verification, and no service-role key usage in client components before every deploy.

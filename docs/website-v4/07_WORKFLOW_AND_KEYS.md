@@ -202,3 +202,18 @@ TURNSTILE_SECRET_KEY=
 - GA4 consent mode verified.
 - Sentry alerts tested.
 - Turnstile verified on forms.
+
+## Prompt 5 Vercel and sandbox environment additions
+
+- Vercel root directory: `apps/author-site`.
+- Vercel install command: `pnpm install`.
+- Vercel build command: `pnpm build`.
+- Local env file: `apps/author-site/.env.local`; do not commit it.
+- Use separate preview and production env sets. Preview must use sandbox Supabase/Stripe/Resend/MailerLite settings.
+- Stripe webhook endpoint path: `/api/stripe/webhook`.
+- Supabase private bucket: `curls-deliverables`; upload locked EPUB/PDF objects only to private Storage paths, not `public/`.
+- MailerLite group checklist: Subscribers, Free Chapter, Preorders, Customers, Abandoned Checkout, Bonus Claim Started, Bonus Claim Completed, Refunded, Blog Readers, VIP / Early Readers.
+- Resend checklist: verified sender, SPF, DKIM, DMARC, support inbox, and sandbox-send review before production.
+- Turnstile checklist: site key, secret key, allowed domains, and route-level verification before enabling as required.
+- GA4/PostHog optional setup must honor consent; internal operational analytics may record server-side order/security/download events.
+- Production activation remains blocked until legal, domain, payment, RLS, download, email, consent, and support QA gates pass.

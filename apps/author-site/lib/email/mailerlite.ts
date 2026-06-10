@@ -1,3 +1,6 @@
+import { z } from "zod";
+import { getMailerLiteConfig } from "@/lib/env";
+
 export type MailerLiteGroup =
   | "subscribers"
   | "free_chapter"
@@ -7,31 +10,46 @@ export type MailerLiteGroup =
   | "bonus_claim_started"
   | "bonus_claim_completed"
   | "refunded"
-  | "blog_readers";
+  | "blog_readers"
+  | "vip_early_readers";
 
-const groupEnv: Record<MailerLiteGroup, string> = {
-  subscribers: "MAILERLITE_GROUP_SUBSCRIBERS",
-  free_chapter: "MAILERLITE_GROUP_FREE_CHAPTER",
-  preorders: "MAILERLITE_GROUP_PREORDERS",
-  customers: "MAILERLITE_GROUP_CUSTOMERS",
-  abandoned_checkout: "MAILERLITE_GROUP_ABANDONED_CHECKOUT",
-  bonus_claim_started: "MAILERLITE_GROUP_BONUS_CLAIM_STARTED",
-  bonus_claim_completed: "MAILERLITE_GROUP_BONUS_CLAIM_COMPLETED",
-  refunded: "MAILERLITE_GROUP_REFUNDED",
-  blog_readers: "MAILERLITE_GROUP_BLOG_READERS"
+export const mailerLiteGroups: Record<MailerLiteGroup, string> = {
+  subscribers: "Subscribers",
+  free_chapter: "Free Chapter",
+  preorders: "Preorders",
+  customers: "Customers",
+  abandoned_checkout: "Abandoned Checkout",
+  bonus_claim_started: "Bonus Claim Started",
+  bonus_claim_completed: "Bonus Claim Completed",
+  refunded: "Refunded",
+  blog_readers: "Blog Readers",
+  vip_early_readers: "VIP / Early Readers"
 };
 
-export async function upsertSubscriber(email: string, group: MailerLiteGroup, fields: Record<string, string> = {}) {
-  const apiKey = process.env.MAILERLITE_API_KEY;
-  const groupId = process.env[groupEnv[group]];
-  if (!apiKey || !groupId) return { ok: false, skipped: true, reason: "MailerLite is not configured." } as const;
+const emailSchema = z.string().email();
+export type EmailProviderResult = { ok: true; skipped: false } | { ok: false; skipped: true; reason: "config_missing" | "group_missing" } | { ok: false; skipped: false; reason: "invalid_email" | "provider_error" };
+
+export async function upsertSubscriber(email: string, group: MailerLiteGroup = "subscribers", fields: Record<string, string> = {}): Promise<EmailProviderResult> {
+  if (!emailSchema.safeParse(email).success) return { ok: false, skipped: false, reason: "invalid_email" };
+  const config = getMailerLiteConfig();
+  if (!config.ok) return { ok: false, skipped: true, reason: "config_missing" };
+  const groupId = config.value.groups[group];
+  if (!groupId) return { ok: false, skipped: true, reason: "group_missing" };
 
   const response = await fetch("https://connect.mailerlite.com/api/subscribers", {
     method: "POST",
-    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json", Accept: "application/json" },
+    headers: { Authorization: `Bearer ${config.value.apiKey}`, "Content-Type": "application/json", Accept: "application/json" },
     body: JSON.stringify({ email, fields, groups: [groupId] })
   });
 
-  if (!response.ok) return { ok: false, skipped: false, reason: await response.text() } as const;
-  return { ok: true, skipped: false } as const;
+  if (!response.ok) return { ok: false, skipped: false, reason: "provider_error" };
+  return { ok: true, skipped: false };
+}
+
+export async function tagSubscriber(email: string, group: MailerLiteGroup, fields: Record<string, string> = {}) {
+  return upsertSubscriber(email, group, fields);
+}
+
+export async function handleMailerLiteUnsubscribeWebhook() {
+  return { ok: true, scaffold: true, note: "MailerLite unsubscribe webhook verification to be enabled after sandbox credentials are configured." } as const;
 }

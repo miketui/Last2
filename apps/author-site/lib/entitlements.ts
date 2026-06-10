@@ -1,24 +1,41 @@
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createServerSupabaseClient, type SessionUser } from "@/lib/supabase/server";
 
-export type EntitlementResult = { allowed: true; purchaseId: string; downloadsUsed: number } | { allowed: false; reason: string };
+export type DeliverableKind = "epub" | "pdf" | "workbook" | "preorder_bonus";
+export type DownloadDenialReason = "unauthenticated" | "no_purchase" | "refunded" | "revoked" | "download_limit_reached" | "config_missing" | "storage_error";
+export type PurchaseStatus = "active" | "refunded" | "canceled" | "past_due" | "revoked";
+export type EntitlementResult =
+  | { allowed: true; purchaseId: string; downloadsUsed: number; user: SessionUser }
+  | { allowed: false; reason: DownloadDenialReason };
 
-export async function checkDownloadEntitlement(userId: string, deliverable: string): Promise<EntitlementResult> {
-  if (!userId) return { allowed: false, reason: "Authentication is required." };
+export const DOWNLOAD_CAP = 3;
+export const DOWNLOAD_WINDOW_DAYS = 7;
 
-  if (process.env.NODE_ENV === "test") return { allowed: false, reason: "No active purchase entitlement found." };
+export function productEntitlements(): Record<DeliverableKind, boolean> {
+  return { epub: true, pdf: true, workbook: false, preorder_bonus: false };
+}
+
+export async function checkDownloadEntitlement(user: SessionUser | string | null, deliverable: DeliverableKind | string): Promise<EntitlementResult> {
+  const normalizedUser = typeof user === "string" ? { id: user, email: "" } : user;
+  const normalizedDeliverable = deliverable as DeliverableKind;
+  if (!normalizedUser?.id) return { allowed: false, reason: "unauthenticated" };
+  if (!productEntitlements()[normalizedDeliverable]) return { allowed: false, reason: "no_purchase" };
 
   const supabase = createServerSupabaseClient(true);
-  if (!supabase) return { allowed: false, reason: "Entitlement service is not configured." };
+  if (!supabase) return { allowed: false, reason: "config_missing" };
 
   const { data: purchase, error } = await supabase
     .from("purchases")
-    .select("id, entitlement_status, refunded_at, download_count, updated_at")
-    .eq("user_id", userId)
+    .select("id, user_id, email, status, entitlement_status, refunded_at, revoked_at, download_count")
     .eq("book_slug", "curls-and-contemplation")
+    .or(`user_id.eq.${normalizedUser.id},email.eq.${normalizedUser.email}`)
+    .order("created_at", { ascending: false })
+    .limit(1)
     .maybeSingle();
 
-  if (error || !purchase) return { allowed: false, reason: "No active purchase entitlement found." };
-  if (purchase.refunded_at || purchase.entitlement_status === "revoked") return { allowed: false, reason: "This purchase entitlement has been revoked or refunded." };
-  if ((purchase.download_count ?? 0) >= 3) return { allowed: false, reason: "Download limit reached. Contact support for help." };
-  return { allowed: true, purchaseId: purchase.id as string, downloadsUsed: purchase.download_count ?? 0 };
+  if (error || !purchase) return { allowed: false, reason: "no_purchase" };
+  const status = (purchase.status ?? purchase.entitlement_status) as PurchaseStatus | undefined;
+  if (purchase.refunded_at || status === "refunded") return { allowed: false, reason: "refunded" };
+  if (purchase.revoked_at || status === "revoked" || status === "canceled" || status === "past_due") return { allowed: false, reason: "revoked" };
+  if ((purchase.download_count ?? 0) >= DOWNLOAD_CAP) return { allowed: false, reason: "download_limit_reached" };
+  return { allowed: true, purchaseId: purchase.id as string, downloadsUsed: purchase.download_count ?? 0, user: normalizedUser };
 }

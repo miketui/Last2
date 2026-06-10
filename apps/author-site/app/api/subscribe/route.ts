@@ -3,5 +3,22 @@ import { z } from "zod";
 import { upsertSubscriber } from "@/lib/email/mailerlite";
 import { analyticsEvents } from "@/lib/analytics";
 import { recordServerEvent } from "@/lib/events/server-analytics";
-const schema = z.object({ email: z.string().email(), source: z.string().max(80).optional() });
-export async function POST(request: Request) { const contentType = request.headers.get("content-type") ?? ""; const body = contentType.includes("application/json") ? await request.json().catch(() => ({})) : Object.fromEntries((await request.formData()).entries()); const parsed = schema.safeParse(body); if (!parsed.success) return NextResponse.json({ error: "Valid email required." }, { status: 400 }); const result = await upsertSubscriber(parsed.data.email, "subscribers", { source: parsed.data.source ?? "site" }); await recordServerEvent({ eventName: analyticsEvents.emailCaptureSuccess, route: "/api/subscribe", source: parsed.data.source, metadata: { mailerliteSkipped: "skipped" in result ? result.skipped : false } }); return NextResponse.json({ ok: true, mailerlite: result }); }
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+const schema = z.object({ email: z.string().email(), source: z.string().max(80).optional(), turnstileToken: z.string().optional() });
+
+export async function POST(request: Request) {
+  const contentType = request.headers.get("content-type") ?? "";
+  const body = contentType.includes("application/json") ? await request.json().catch(() => ({})) : Object.fromEntries((await request.formData()).entries());
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ ok: false, error: { code: "invalid_email" } }, { status: 400 });
+
+  const mailerlite = await upsertSubscriber(parsed.data.email, "subscribers", { source: parsed.data.source ?? "site" });
+  const supabase = createServerSupabaseClient(true);
+  if (supabase) {
+    await supabase.from("subscribers").upsert({ email: parsed.data.email, source: parsed.data.source ?? "site", updated_at: new Date().toISOString() }, { onConflict: "email" });
+    await supabase.from("subscriber_events").insert({ email: parsed.data.email, event_type: "email_signup_completed", provider: "site", metadata: { source: parsed.data.source ?? "site" } });
+  }
+  await recordServerEvent({ eventName: analyticsEvents.emailSignupCompleted, route: "/api/subscribe", source: parsed.data.source, metadata: { mailerliteSkipped: mailerlite.skipped }, operational: true });
+  return NextResponse.json({ ok: true, mailerlite, database: supabase ? "recorded" : "skipped_config_missing" });
+}
