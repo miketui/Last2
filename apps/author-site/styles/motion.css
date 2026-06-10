@@ -1,3 +1,8 @@
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate3d(0, 8px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
@@ -7,7 +12,30 @@
   }
 }
 
+.curl-cursor-trail,
 .curl-trail-mark {
   pointer-events: none;
-  opacity: 0.18;
+}
+
+.curl-trail-mark {
+  filter: drop-shadow(0 0 10px rgba(176, 141, 87, 0.18));
+  will-change: transform, opacity;
+}
+
+.reveal-block {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-block {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+    transition: opacity 520ms ease, transform 520ms ease;
+  }
+
+  .reveal-block.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }

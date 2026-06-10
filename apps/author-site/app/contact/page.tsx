@@ -1,14 +1,10 @@
 import { pageMetadata } from "@/lib/seo";
+import { PageHero } from "@/components/design/PageHero";
 import { Section } from "@/components/design/Section";
-import { PricingCard } from "@/components/PricingCard";
-import { EmailSignup } from "@/components/EmailSignup";
-import { FAQAccordion } from "@/components/FAQAccordion";
-import { WorksheetCard } from "@/components/WorksheetCard";
-import { worksheets } from "@/content/worksheets";
-import { priceConfig } from "@/content/book";
+import { siteConfig } from "@/content/site";
 
-export const metadata = pageMetadata("Contact", "Support and contact intake scaffold.");
+export const metadata = pageMetadata("Contact", "Contact path for Curls & Contemplation support and media requests.");
 
 export default function Page() {
-  return <main><Section eyebrow="Curls & Contemplation" title="Contact"><p>Support and contact intake scaffold.</p><div className="mt-8"><EmailSignup source="contact" /></div></Section></main>;
+  return <main><PageHero eyebrow="Contact" title="Send the right note to the right place." description="Support, media, and rights requests should use the configured support inbox until the production domain is finalized." primaryHref={`mailto:${siteConfig.supportEmail}`} primaryLabel="Email Support" /><Section eyebrow="Support" title="What to include."><ul className="space-y-3"><li>Order email if you are asking about a purchase.</li><li>Media deadline and publication if you are requesting materials.</li><li>No secrets or payment details in the message body.</li></ul></Section></main>;
 }

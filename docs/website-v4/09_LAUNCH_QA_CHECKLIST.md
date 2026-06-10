@@ -104,3 +104,14 @@ No app scaffold, credentials, live payment activation, or release/book/build/arc
 - [ ] Download failures reviewed daily during launch.
 - [ ] Support inbox monitored.
 - [ ] Refund/revocation process tested after first real refund.
+
+## Prompt 4 design, motion, and accessibility QA additions
+
+- [ ] Run visual screenshots for desktop 1440px, tablet 768px, and mobile 390px in an environment with Playwright/Chromium system dependencies installed.
+- [ ] Verify home page first impression reads as Recognition → Unspoken Problem → Relief/Authority Path before any purchase pressure.
+- [ ] Confirm curl cursor trail is absent on touch/coarse-pointer devices, reduced-motion settings, auth routes, buy/checkout paths, dashboard/downloads, admin, and legal pages.
+- [ ] Confirm all primary CTAs remain readable and keyboard focus-visible with reduced motion enabled.
+- [ ] Confirm legal/admin/auth/download pages remain low-motion and do not show decorative cursor or heavy transitions.
+- [ ] Review final production cover art placement when approved; current book visual is a CSS mockup, not a release asset copy.
+- [ ] Re-check all public credibility language against `marketing/website/claims-evidence.md` immediately before launch.
+- [ ] Confirm no EPUB/PDF files exist under `apps/author-site/public/` before deployment.

@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ConsentBanner } from "@/components/ConsentBanner";
 import { CurlCursorTrail } from "@/components/motion/CurlCursorTrail";
+import { PageTransition } from "@/components/motion/PageTransition";
 import { ReducedMotionProvider } from "@/components/motion/ReducedMotionProvider";
 import { siteConfig } from "@/content/site";
 
@@ -15,5 +16,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  return <html lang="en"><body><ReducedMotionProvider><Header />{children}<Footer /><ConsentBanner /><CurlCursorTrail /></ReducedMotionProvider></body></html>;
+  return <html lang="en"><body><ReducedMotionProvider><Header /><PageTransition>{children}</PageTransition><Footer /><ConsentBanner /><CurlCursorTrail /></ReducedMotionProvider></body></html>;
 }

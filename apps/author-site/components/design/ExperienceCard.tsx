@@ -1,2 +1,2 @@
 import type { ReactNode } from "react";
-export function ExperienceCard({ title, children }: { title: string; children: ReactNode }) { return <article className="rounded-3xl border border-whitegold/15 bg-white/5 p-6 shadow-gold"><h3 className="font-display text-2xl text-white">{title}</h3><div className="mt-3 text-whitegold/80">{children}</div></article>; }
+export function ExperienceCard({ title, children }: { title: string; children: ReactNode }) { return <article className="editorial-panel rounded-[2rem] p-6 transition hover:border-antique/50"><h3 className="font-display text-2xl leading-tight text-white md:text-3xl">{title}</h3><div className="mt-3 text-sm leading-7 text-whitegold/78 md:text-base">{children}</div></article>; }

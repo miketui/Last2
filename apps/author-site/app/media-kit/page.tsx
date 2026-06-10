@@ -1,14 +1,9 @@
 import { pageMetadata } from "@/lib/seo";
+import { PageHero } from "@/components/design/PageHero";
 import { Section } from "@/components/design/Section";
-import { PricingCard } from "@/components/PricingCard";
-import { EmailSignup } from "@/components/EmailSignup";
-import { FAQAccordion } from "@/components/FAQAccordion";
-import { WorksheetCard } from "@/components/WorksheetCard";
-import { worksheets } from "@/content/worksheets";
-import { priceConfig } from "@/content/book";
 
-export const metadata = pageMetadata("Media Kit", "Media-ready facts and approved positioning placeholders.");
+export const metadata = pageMetadata("Media Kit", "Claim-safe media kit scaffold for Curls & Contemplation.");
 
 export default function Page() {
-  return <main><Section eyebrow="Curls & Contemplation" title="Media Kit"><p>Media-ready facts and approved positioning placeholders.</p></Section></main>;
+  return <main><PageHero eyebrow="Media kit" title="Press materials without inflated claims." description="This surface is prepared for approved bios, cover art, and release notes after human review." primaryHref="/contact" primaryLabel="Request Materials" /><Section eyebrow="Approved-use placeholders" title="What is ready and what still needs approval."><div className="grid gap-5 md:grid-cols-3"><div className="editorial-panel rounded-3xl p-5">Book summary scaffold</div><div className="editorial-panel rounded-3xl p-5">Author bio pending claim review</div><div className="editorial-panel rounded-3xl p-5">Cover assets pending final approval</div></div></Section></main>;
 }

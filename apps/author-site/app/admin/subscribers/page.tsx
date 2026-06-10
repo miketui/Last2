@@ -1,4 +1,6 @@
+import { AdminSurface } from "@/components/AdminSurface";
+import { UtilityShell } from "@/components/design/UtilityShell";
 import { requireAdmin } from "@/lib/security";
 import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata("Subscribers", "Admin Subscribers surface.", true);
-export default async function Page() { const admin = await requireAdmin(); if (!admin.ok) return <main className="mx-auto max-w-3xl px-6 py-16"><h1 className="font-display text-5xl text-white">Admin gated</h1><p className="mt-4 text-whitegold/80">{admin.reason}</p></main>; return <main className="mx-auto max-w-5xl px-6 py-16"><p className="editorial-kicker">Authorized admin</p><h1 className="mt-4 font-display text-5xl text-white">Subscribers</h1><p className="mt-6 text-whitegold/80">Admin-ready scaffold for subscribers backed by service-role routes and admin_users intent.</p></main>; }
+export default async function Page() { const admin = await requireAdmin(); if (!admin.ok) return <UtilityShell eyebrow="Admin" title="Admin gated" description={admin.reason}><div className="editorial-panel rounded-3xl p-6 text-whitegold/75">Authentication and authorization are required before this surface shows operational data.</div></UtilityShell>; return <UtilityShell eyebrow="Authorized admin" title="Subscribers" description="Operational scaffold for protected commerce and content review."><AdminSurface title="Subscribers" description="Admin-ready surface backed by future service-role routes, admin_users authorization, and noindex headers." /></UtilityShell>; }

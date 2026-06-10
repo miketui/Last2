@@ -1,4 +1,5 @@
 import { AuthForm } from "@/components/AuthForm";
+import { UtilityShell } from "@/components/design/UtilityShell";
 import { pageMetadata } from "@/lib/seo";
-export const metadata = pageMetadata("Log in", "Log in to a customer account.", true);
-export default function LoginPage() { return <main className="px-6 py-16"><h1 className="text-center font-display text-5xl text-white">Log in</h1><div className="mt-8"><AuthForm mode="login" /></div></main>; }
+export const metadata = pageMetadata("Login", "Customer login.", true);
+export default function Page() { return <UtilityShell eyebrow="Account" title="Log in to your library." description="Protected routes stay low-motion and noindex while Supabase Auth is configured."><AuthForm mode="login" /></UtilityShell>; }

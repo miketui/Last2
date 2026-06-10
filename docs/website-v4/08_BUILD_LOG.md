@@ -106,3 +106,81 @@ Still scaffolded / requires production setup:
 
 ### Recommendation for Prompt 4
 Prompt 4 should harden the immersive design/motion pass: convert `middleware.ts` to the newer Next.js `proxy` convention while preserving requested protections, refine responsive page layouts, expand reduced-motion testing, add screenshots for the visible home/preorder/download states, and replace placeholder copy with final claim-verified excerpts from `06_WEBSITE_COPY_v4.md` without inventing new claims.
+
+## Prompt 4 — Immersive Design, Motion, Responsive Polish, and Claim-Safe UX Hardening (2026-06-10)
+
+### Scope
+- Hardened only the existing Next.js author-commerce app under `apps/author-site/` plus Prompt 4 documentation and QA notes.
+- Did **not** modify EPUB, POD, book manuscript, release artifacts, archive files, or publishing build files.
+- Did **not** use real API keys, activate live payments, deploy production, or create a live subscription offer.
+
+### Pre-edit audit findings
+- Initial `git status --short` showed existing untracked `tools/` and `validation-reports/` directories from prior validation work; Prompt 4 did not alter publishing artifacts.
+- Initial `find apps/author-site -maxdepth 4 -type f | sort | sed 's#^#- #' | head -250` confirmed the scaffold already contained all required app routes, route handlers, motion components, ACISS styles, tests, Supabase migration, and app README.
+- Home page existed but its first three sections were structurally minimal and did not yet carry the required Recognition → Problem/Relief → Authority/path emotional pacing.
+- Motion components existed but needed stronger route exclusions, reduced-motion behavior, focus states, coarse-pointer disabling, and lower-impact transform/opacity animation.
+- Checkout/auth/download/admin/legal surfaces were readable but visually sparse; they needed low-motion polish, clearer empty/scaffold states, and mobile-safe spacing.
+
+### Files changed
+- Updated public and utility routes across `apps/author-site/app/` for stronger ACISS hierarchy, safer copy, responsive sections, and clear CTA hierarchy.
+- Reworked immersive components: `BookHero`, `BookMockup`, `Header`, `LaunchModeCTA`, design shells, and admin/customer/legal utility shells.
+- Hardened motion files: `CurlCursorTrail`, `MagneticCurlButton`, `BookTilt`, `ChapterPathway`, `PageTransition`, `ScrollReveal`, and `ReducedMotionProvider`.
+- Added route/motion policy helpers: `apps/author-site/lib/route-policy.ts` and `apps/author-site/lib/motion-policy.ts`.
+- Migrated `apps/author-site/middleware.ts` to `apps/author-site/proxy.ts` for Next.js 16 while preserving protected-route noindex behavior.
+- Added `apps/author-site/public/.gitkeep` so static security checks can inspect an empty public directory without placing paid assets there.
+- Added tests: `tests/motion-static.test.ts` and `tests/route-protection.test.ts`; updated launch CTA expectations for the locked visible CTA labels.
+
+### Design and motion improvements
+- Home section 1 now leads with Recognition: “You learned the craft. Nobody taught you the business,” includes layered book presence, direct preorder CTA, free chapter CTA, subtle hairline visual styling, and only claim-safe credibility language.
+- Home section 2 now names the unspoken problem across pricing, networking, on-set etiquette, burnout, leadership, and freelance uncertainty.
+- Home section 3 now presents the four-part pathway with worksheets/resources/career-map context and a bridge to preorder/book exploration.
+- Public pages received a consistent premium PageHero system, editorial panels, mobile-first spacing, ACISS-only colors, and clearer one-primary-action hierarchy.
+- Auth, dashboard, downloads, admin, and legal pages remain low-motion, readable, and scaffold-explicit.
+- Curl cursor trail is desktop/fine-pointer only, disabled for reduced motion and excluded routes, uses pointer-events none, low opacity SVG strand marks, and requestAnimationFrame updates.
+- Magnetic CTA now has subtle hover-only magnetism, visible keyboard focus, reduced-motion fallback, disabled/loading safeguards, and readable label treatment.
+- Book tilt, pathway, scroll reveal, and page transitions now avoid heavy animation on checkout/auth/dashboard/download/admin/legal routes and fall back to static states under reduced motion.
+
+### Middleware/proxy decision
+- Installed Next.js resolved to `16.2.9`; Next.js 16 supports the `proxy.ts` convention and deprecates `middleware.ts`.
+- Migrated the existing middleware logic to `apps/author-site/proxy.ts` using `export function proxy(request)` and preserved `x-author-site` plus `X-Robots-Tag: noindex, nofollow` for protected route prefixes.
+- Removed `apps/author-site/middleware.ts` to avoid the Next.js 16 deprecation warning.
+
+### Screenshot attempt result
+- Started Next.js dev server successfully at `http://127.0.0.1:3000`.
+- Ran `pnpm dlx playwright@latest install chromium`; Playwright browser download completed.
+- Screenshot capture failed before rendering because Playwright Chromium could not load the required system library `libatk-1.0.so.0` in this container.
+- No screenshot PNGs were produced; this is an environment dependency blocker, not an app build blocker.
+
+### Tests added / improved
+- Added static and policy tests for curl cursor reduced-motion disabling, excluded route patterns, pointer-events none, fine pointer gate, and requestAnimationFrame use.
+- Added static test coverage for MagneticCurlButton focus-visible/reduced-motion/disabled safeguards.
+- Added route protection tests for protected route prefixes, proxy convention, and noindex metadata behavior.
+- Preserved and updated locked pricing and launch-mode CTA tests.
+- Static security checks continue to assert deprecated colors are absent and paid EPUB/PDF files are not in `public/`.
+
+### Commands run and results
+- PASS: `git status --short`
+- PASS: `find apps/author-site -maxdepth 4 -type f | sort | sed 's#^#- #' | head -250`
+- PASS: `cd apps/author-site && pnpm install`
+- FAIL then fixed: `cd apps/author-site && pnpm lint` initially flagged synchronous setState in motion effects; fixed by deferring pointer-media initialization and avoiding immediate effect state clearing.
+- PASS after fix: `cd apps/author-site && pnpm lint`
+- PASS: `cd apps/author-site && pnpm typecheck`
+- FAIL then fixed: `cd apps/author-site && pnpm test` initially found a missing `public/` directory and a too-literal noindex string assertion; fixed with `public/.gitkeep` and metadata-aligned assertions.
+- PASS after fix: `cd apps/author-site && pnpm test`
+- PASS: `cd apps/author-site && pnpm build`
+- PASS: `grep -RIn --exclude-dir=node_modules --exclude-dir=.next -E '#0E0D0B|#B89968|#1F6F6B|#2B9999|#C9A961' apps/author-site || true`
+- PASS: `find apps/author-site/public -type f | grep -Ei '.(epub|pdf)$' && exit 1 || true`
+- WARNING: `pnpm dlx playwright@latest screenshot ...` blocked by missing container library `libatk-1.0.so.0`.
+
+### What is real vs scaffolded
+- Real: ACISS-aligned responsive UI structure, route pages, noindex/proxy headers for protected surfaces, motion route exclusions, reduced-motion handling, static/security tests, private-delivery references, locked pricing, and claim-safe copy discipline.
+- Scaffolded: Stripe checkout activation, Supabase Auth sessions, Supabase private Storage signed URL delivery, MailerLite/Resend production sends, admin data, analytics dashboards, media-kit assets, and any future subscription/resource-library offer.
+
+### Remaining visual risks
+- Browser screenshots could not be generated in this environment; a human should run Playwright or Vercel preview screenshots on a machine with Chromium system dependencies.
+- Final typography should be reviewed once production fonts/assets are approved.
+- Book mockup remains CSS-rendered until final approved cover art is provided.
+- Copy is intentionally conservative; any stronger author credibility language requires fresh evidence and approval through `marketing/website/claims-evidence.md`.
+
+### Recommendation for Prompt 5
+- Prompt 5 should focus on backend/security implementation hardening only after owner-provided sandbox credentials are available: Supabase Auth/DB/RLS/private Storage wiring, Stripe Checkout/webhook integration with signature verification, entitlement creation/revocation, Resend/MailerLite test-mode flows, and admin data access checks. Do not activate production payments or subscriptions until Michael explicitly approves the offer and keys.
