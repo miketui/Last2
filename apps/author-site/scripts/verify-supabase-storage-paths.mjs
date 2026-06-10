@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
+import { isMeaningfulSandboxValue, loadSandboxEnv } from "./check-sandbox-env.mjs";
 
 export const lockedStorage = {
   bucket: "curls-deliverables",
@@ -40,9 +41,14 @@ export function verifyLockedPathStrings({ repoRoot = resolve(process.cwd(), "../
 }
 
 async function optionalSupabaseCheck(env) {
+  const required = ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_STORAGE_BUCKET"];
+  const missing = required.filter((name) => !isMeaningfulSandboxValue(env[name]));
+  if (missing.length) return { skipped: true, reason: `Missing ${missing.join(", ")}` };
+  if (env.SUPABASE_STORAGE_BUCKET !== lockedStorage.bucket) {
+    return { skipped: false, ok: false, reason: `SUPABASE_STORAGE_BUCKET must be ${lockedStorage.bucket}.` };
+  }
   const url = env.NEXT_PUBLIC_SUPABASE_URL;
   const key = env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return { skipped: true, reason: "Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY" };
   const { createClient } = await import("@supabase/supabase-js");
   const supabase = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
   const bucketResult = await supabase.storage.getBucket(lockedStorage.bucket);
@@ -62,7 +68,7 @@ async function optionalSupabaseCheck(env) {
   return { skipped: false, ok: true };
 }
 
-export async function runSupabaseStorageCheck({ repoRoot = resolve(process.cwd(), "../.."), appDir = process.cwd(), env = process.env } = {}) {
+export async function runSupabaseStorageCheck({ repoRoot = resolve(process.cwd(), "../.."), appDir = process.cwd(), env = loadSandboxEnv(appDir) } = {}) {
   const staticResult = verifyLockedPathStrings({ repoRoot, appDir });
   if (!staticResult.ok) return { ok: false, staticResult };
   const remote = await optionalSupabaseCheck(env);

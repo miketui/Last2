@@ -42,8 +42,8 @@ describe("Prompt 6 sandbox integration readiness", () => {
         PATH: process.env.PATH ?? "",
         NEXT_PUBLIC_SITE_URL: "http://localhost:3000",
         STRIPE_SECRET_KEY: secretValue,
-        STRIPE_PRICE_ID_PREORDER: "price_test_preorder",
-        STRIPE_PRICE_ID_REGULAR: "price_test_regular"
+        STRIPE_PRICE_ID_PREORDER: "price_12345preorder",
+        STRIPE_PRICE_ID_REGULAR: "price_12345regular"
       },
       encoding: "utf8"
     });

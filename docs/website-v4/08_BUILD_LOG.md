@@ -357,5 +357,87 @@ Prompt 7 should use Michael-supplied sandbox credentials to perform real provide
 
 ### Final validation addendum
 - `cd apps/author-site && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm check:sandbox` — passed after the Prompt 6 fixes above. Build generated 49 app routes and kept production activation untouched.
-- `grep -RIn --exclude-dir=node_modules --exclude-dir=.next -E 'sk_live_|rk_live_|whsec_live|supabase_service_role=|STRIPE_SECRET_KEY=.+|RESEND_API_KEY=.+|MAILERLITE_API_KEY=.+|SUPABASE_SERVICE_ROLE_KEY=.+' apps/author-site docs/website-v4 .env.example || true` — passed with no matches.
+- `grep -RIn --exclude-dir=node_modules --exclude-dir=.next -E 'sk_live_|rk_live_|whsec_live|supabase_service_role=|STRIPE_SECRET_KEY=.+|RESEND_API_KEY=.+|MAILERLITE_API_KEY=.+|SUPABASE_SERVICE_ROLE_KEY=.+' apps/author-site docs/website-v4 .env.example || true` — passed with documentation-only matches for the recorded scan command and no real secret values.
 - `find apps/author-site/public -type f | grep -Ei '.(epub|pdf)$' && exit 1 || true` — passed with no paid EPUB/PDF files in public.
+
+
+## Prompt 7 — Sandbox Provider Verification and Test-Result Documentation (2026-06-10)
+
+### Scope
+- Verified as much sandbox-provider readiness as possible for Supabase, Stripe test mode, private downloads, Resend, MailerLite, Turnstile, analytics, and Vercel Preview readiness without live/production credentials.
+- Created `docs/website-v4/14_SANDBOX_VERIFICATION_REPORT.md` and filled the Prompt 7 results section in `docs/website-v4/13_SANDBOX_TEST_RESULTS_TEMPLATE.md`.
+- Did not modify EPUB, POD, book, release, archive, or publishing build files; did not move paid deliverables into `apps/author-site/public/`.
+- Did not activate live payments, create a live subscription offer, or deploy production.
+
+### Prompt 6 state audit findings before editing
+- `git status --short` showed pre-existing untracked `tools/` and `validation-reports/` directories. Prompt 7 did not edit or stage them.
+- `apps/author-site/scripts/` contained the four Prompt 6 safety scripts: sandbox env, public deliverables, Supabase storage path, and Stripe test-mode checks.
+- `apps/author-site/tests/` contained Prompt 4/5/6 static and behavior suites, including `sandbox-integration-readiness.test.ts`.
+- `docs/website-v4/` contained Prompt 6 runbook/template docs through `13_SANDBOX_TEST_RESULTS_TEMPLATE.md`.
+- `release/` contained the locked V8 EPUB/PDF artifacts plus manifest/check outputs; those files were not modified.
+- Runtime environment did not provide sandbox credentials for Supabase, Stripe, Resend, MailerLite, Turnstile, GA4, or PostHog.
+
+### Files changed
+- `apps/author-site/scripts/check-sandbox-env.mjs` — tightened presence detection so placeholder values are treated as missing and included the refunded MailerLite group in sandbox readiness status.
+- `apps/author-site/scripts/verify-supabase-storage-paths.mjs` — loads safe sandbox env sources, treats placeholders as missing, checks all required Supabase env names, and enforces the locked bucket name before remote probes.
+- `apps/author-site/scripts/stripe-test-mode-check.mjs` — loads safe sandbox env sources, treats placeholders as missing, rejects non-test key patterns, and validates Stripe price ID shape when present.
+- `apps/author-site/tests/sandbox-integration-readiness.test.ts` — updated the script-output smoke test to use Stripe price-shaped placeholder IDs.
+- `docs/website-v4/13_SANDBOX_TEST_RESULTS_TEMPLATE.md` — added Prompt 7 filled provider results.
+- `docs/website-v4/14_SANDBOX_VERIFICATION_REPORT.md` — created the verification report.
+- `docs/website-v4/09_LAUNCH_QA_CHECKLIST.md` — added Prompt 7 sandbox verification gates.
+- `apps/author-site/README.md` — added Prompt 7 sandbox verification usage notes.
+
+### Commands run
+- `git status --short`
+- `find apps/author-site/scripts -maxdepth 2 -type f | sort`
+- `find apps/author-site/tests -maxdepth 3 -type f | sort`
+- `find docs/website-v4 -maxdepth 1 -type f | sort`
+- `find release -maxdepth 2 -type f | sort`
+- `cd apps/author-site && pnpm check:supabase-storage`
+- `cd apps/author-site && pnpm check:stripe-test`
+- `cd apps/author-site && pnpm install`
+- `cd apps/author-site && pnpm lint`
+- `cd apps/author-site && pnpm typecheck`
+- `cd apps/author-site && pnpm test`
+- `cd apps/author-site && pnpm build`
+- `cd apps/author-site && pnpm check:sandbox`
+- `cd apps/author-site && pnpm check:sandbox-env`
+- `cd apps/author-site && pnpm check:deliverables`
+- `cd apps/author-site && pnpm check:supabase-storage`
+- `cd apps/author-site && pnpm check:stripe-test`
+- Secret-pattern scan over `apps/author-site`, `docs/website-v4`, and `.env.example`
+- Public paid-file scan under `apps/author-site/public`
+- Local env file absence checks for `.env.local` and `.env.sandbox`
+
+### Provider verification result
+- Supabase: `SKIPPED — credentials missing` for remote provider checks; static locked bucket/object path checks passed.
+- Stripe: `SKIPPED — credentials missing` for test Checkout Session and webhook replay; live/prod key rejection checks passed.
+- Resend: `SKIPPED — credentials missing`; no email was sent.
+- MailerLite: `SKIPPED — credentials missing`; no subscriber/group mutation was attempted.
+- Turnstile: `SKIPPED — credentials missing` for remote validation; fail-safe config posture remains documented.
+- Analytics: `SKIPPED — credentials missing` for remote ingestion; local consent/event/sanitization tests passed.
+- Vercel Preview: `BLOCKED — human/provider setup required` until sandbox-only env vars are configured in Preview.
+
+### Credentials present/missing
+- Present: no provider sandbox credentials were detected in the runtime environment.
+- Missing: Supabase, Stripe, Resend, MailerLite, Turnstile, GA4/PostHog, and Vercel Preview provider env values listed in `14_SANDBOX_VERIFICATION_REPORT.md`.
+
+### Sandbox skipped items
+- Supabase migration/RLS/private bucket/object signed URL checks.
+- Stripe test Checkout Session, webhook replay, and refund/revocation provider flow.
+- Resend transactional send verification.
+- MailerLite subscriber add/update and group assignment.
+- Turnstile remote challenge validation.
+- GA4/PostHog sandbox ingestion.
+
+### Failures/fixes
+- Improved sandbox check scripts before full validation so placeholder values copied from examples are treated as missing instead of provider-ready.
+- Improved Supabase storage verification to list all required missing env names and enforce `SUPABASE_STORAGE_BUCKET=curls-deliverables` before remote checks.
+- Improved Stripe verification to reject malformed price IDs when supplied.
+- No real provider failure occurred because provider-backed checks were safely skipped due to missing credentials.
+
+### Production lock status
+- Production remains locked: no live keys, no live payments, no production deploy, no live subscription offer, and no public paid deliverables.
+
+### Recommendation for Prompt 8
+- Prompt 8 should configure sandbox credentials only in secure local/Vercel Preview env, run provider-backed Supabase RLS/private Storage/signed URL checks, Stripe test checkout/webhook/refund replay, Resend/MailerLite sandbox-recipient tests, Turnstile invalid-challenge tests, and analytics consent/ingestion verification before any production launch planning.
