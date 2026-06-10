@@ -1,0 +1,4 @@
+"use client";
+import { useState, type ReactNode } from "react";
+import Link from "next/link";
+export function MagneticCurlButton({ href, children }: { href: string; children: ReactNode }) { const [style, setStyle] = useState({ transform: "translate3d(0,0,0)" }); return <Link href={href} onPointerMove={(event) => { const rect = event.currentTarget.getBoundingClientRect(); setStyle({ transform: `translate3d(${(event.clientX - rect.left - rect.width / 2) * 0.08}px, ${(event.clientY - rect.top - rect.height / 2) * 0.08}px, 0)` }); }} onPointerLeave={() => setStyle({ transform: "translate3d(0,0,0)" })} style={style} className="inline-flex rounded-full bg-antique px-6 py-3 font-semibold text-obsidian transition focus:outline-none focus:ring-2 focus:ring-antique focus:ring-offset-2 focus:ring-offset-obsidian">{children}</Link>; }
