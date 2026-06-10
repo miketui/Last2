@@ -193,3 +193,36 @@ No unintentional content differences: both artifacts are packaged/rendered from 
 2. **The worksheet copy makes no time-bound promise** — it says companion resources "as they become available" are announced at michaeldavidjr.beauty, which stays true whether the MailerLite pack ships next week or never. Shipping the pack (Phase 2 T3) is still the funnel win, but the book no longer depends on it.
 3. **ISBNs remain the only open blocker** for the version of record: buy them, re-add the ISBN block to `2-Copyright.xhtml`, re-run the two build scripts, re-run epubcheck — under ten minutes total.
 4. **Three soft claims the audit did not flag were additionally hedged in this build:** Ch XVI licensing claim now reads "a growing advocacy movement is pushing to make texture competency part of licensing requirements"; Ch XIV now says DaySmart Salon "advertises AI-assisted features designed to…" (vendor marketing is verifiable by nature); Ch VII now frames the Jen Atkin routine as her own interview account ("In interviews, Atkin has described…"), matching its Hoffman Institute citation.
+
+---
+
+# UPDATE — v8-20260610 build (supersedes FINAL above)
+
+**Build date:** June 10, 2026 · **Branch:** `claude/modest-clarke-w0x20e` · Source: `miketui/Last` PR #91
+
+The 2026-06-09 forensic audit found the FINAL artifacts carried a generic (non-ACISS)
+palette and had never passed the official validator. Both are replaced here by the
+v8 builds; versioned naming per Pre-Mortem risk #10 ("FINAL" reserved for the
+post-ISBN, post-gate freeze).
+
+## Deliverables
+| File | Description |
+|---|---|
+| `Curls-and-Contemplation-v8-20260610.epub` | EPUB 3.3 — **official EPUBCheck 0 fatals / 0 errors / 0 warnings / 0 infos** (`epubcheck-v8.txt`) |
+| `CurlsAndContemplation-POD-Royal-v8-20260610.pdf` | KDP Royal 6.69×9.61 POD interior, Chromium/Skia, 465 pp |
+| `page-map.json` | Spine file → first page number map for the v8 PDF |
+
+## Changes vs FINAL
+- **ACISS palette enforced** in `style.css`: `#008080`→`#145B4B` Deep Jade, `#D4AF37`→`#B08D57` Antique Gold, `#00A86B`/`#C8A951` and all derived shades remapped; 0 generic/retired tokens remain.
+- **Chapter badge assets** `brushstroke.png`/`.svg` recolored from hardcoded `#4ECDC4` teal to Deep Jade (CSS could not reach these; this was the `#47B9B1` badge sample in the audit).
+- **All fonts embedded** (639/639): stripped reportlab's dead non-embedded Helvetica reference from the folio overlay.
+- **No blank pages:** 33 manufactured blanks dropped; full-PDF ink census confirms 0 blank pages. **No truncation:** 46/46 spine files, bibliography closes p465, 85,623 words extracted.
+
+## Interior freeze + spine spec (KDP B&W, white paper)
+- **Page count: 465 (FROZEN)** · **Spine: 1.0472 in / 26.60 mm**
+- **Cover wrap flat size (0.125 in bleed): 14.6772 × 9.8600 in**
+
+## Still open before KDP upload
+1. **ISBN** (Michael): purchase → insert into copyright page + `dc:identifier` → rebuild → re-verify page count/spine.
+2. **Cover wrap** commission against the frozen spec.
+3. **Kindle device test** (light/dark/sepia) for dark chapter panels.
