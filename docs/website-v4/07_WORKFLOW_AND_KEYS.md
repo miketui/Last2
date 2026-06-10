@@ -1,0 +1,204 @@
+<!--
+Curls & Contemplation Website v4 planning package.
+Controlled by docs/website-v4/00_REPO_AUDIT.md and root AGENTS.md.
+No app scaffold, credentials, live payment activation, or release/book/build/archive edits are included in Prompt 2.
+-->
+# 07_WORKFLOW_AND_KEYS — Setup, Environments, and Credentials Plan
+
+## 1. End-to-end visitor-to-purchase workflow
+1. Visitor reaches `{{DOMAIN}}` or route-specific landing page.
+2. Consent banner records cookie preferences in `consent_log`.
+3. Visitor submits email on `/free-chapter` or `/preorder`.
+4. Server validates Turnstile and form input.
+5. Server inserts/updates `subscribers` and `subscriber_events`.
+6. Server adds subscriber to MailerLite group.
+7. Visitor starts checkout from `/preorder` or `/buy`.
+8. `/api/checkout` selects Stripe price server-side.
+9. Stripe Checkout collects payment.
+10. `/api/stripe/webhook` verifies signature and writes order/purchase.
+11. Resend sends confirmation.
+12. Customer signs in with Supabase Auth.
+13. Dashboard checks entitlement.
+14. `/api/downloads/sign` creates Supabase private Storage signed URL.
+15. Download and analytics events are recorded.
+
+## 2. Stripe setup
+Create test-mode products first:
+- `Curls & Contemplation — Direct Preorder` one-time `$17.99` → `STRIPE_PRICE_ID_PREORDER`.
+- `Curls & Contemplation — Direct Regular Edition` one-time `$19.99` → `STRIPE_PRICE_ID_REGULAR`.
+- Optional worksheet/future products remain inactive unless approved.
+
+Get keys from Stripe Dashboard:
+- Developers → API keys: `STRIPE_SECRET_KEY`.
+- Developers → Webhooks: endpoint secret `STRIPE_WEBHOOK_SECRET`.
+- Products → Prices: price IDs.
+
+Production gate:
+- Test webhook signature verification.
+- Test refund entitlement revocation.
+- Confirm tax/business settings.
+- Switch to live keys only after human approval.
+
+## 3. Supabase setup
+Create a Supabase project per environment or use separate projects for preview/production.
+
+Needed values:
+- `NEXT_PUBLIC_SUPABASE_URL`: Project Settings → API.
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Project Settings → API.
+- `SUPABASE_SERVICE_ROLE_KEY`: Project Settings → API; server-only.
+
+Run migrations from Prompt 3 after review. Enable RLS and verify policies.
+
+## 4. Supabase private Storage setup
+Create private bucket:
+```text
+curls-deliverables
+```
+Upload paid files after production storage is ready:
+- `release/Curls-and-Contemplation-v8-20260610.epub`
+- `release/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`
+
+Rules:
+- Never copy paid files into `apps/author-site/public/`.
+- Use signed URLs from server route only.
+- Record download attempts.
+
+## 5. MailerLite setup
+Get API key from MailerLite Integrations/API.
+Create groups:
+- Subscribers, Free Chapter, Preorders, Customers, Abandoned Checkout, Bonus Claim Started, Bonus Claim Completed, Refunded, VIP / Early Readers, Blog Readers.
+
+Create automations:
+1. Free Chapter Delivery.
+2. Preorder Nurture.
+3. Abandoned Checkout Recovery.
+4. Launch-Day Delivery.
+5. Customer Onboarding.
+6. Worksheet Engagement.
+7. Review/Referral Request.
+8. Refund/Access Revocation.
+9. Blog-to-Book Nurture.
+10. Future Offer Waitlist.
+
+## 6. Resend setup
+Get `RESEND_API_KEY` from Resend API Keys.
+Verify sender domain and configure:
+- SPF.
+- DKIM.
+- DMARC.
+
+Transactional sender:
+- `RESEND_FROM_EMAIL` should use approved domain email.
+- `SUPPORT_EMAIL` receives support/contact notices.
+
+## 7. Vercel setup
+Create Vercel project pointed to future `apps/author-site/`.
+Set Framework Preset: Next.js.
+Set Root Directory: `apps/author-site`.
+Configure environment variables for Preview and Production separately.
+Use `NEXT_PUBLIC_SITE_URL` for deployed canonical URL once domain is chosen.
+
+## 8. GA4 setup
+Create GA4 property and web stream.
+Use `NEXT_PUBLIC_GA4_MEASUREMENT_ID`.
+Implement consent mode:
+- Default denied for analytics/ads where required.
+- Update consent after user choice.
+- Server-side critical events still insert into `analytics_events` for fulfillment/security.
+
+## 9. Sentry setup
+Create project and set:
+- `NEXT_PUBLIC_SENTRY_DSN`.
+- `SENTRY_AUTH_TOKEN` for sourcemaps if used.
+- `SENTRY_ORG`, `SENTRY_PROJECT` if needed.
+
+## 10. Turnstile setup
+Create Cloudflare Turnstile widget:
+- `NEXT_PUBLIC_TURNSTILE_SITE_KEY` for forms.
+- `TURNSTILE_SECRET_KEY` server-only verification.
+
+Use on email capture, contact, bonus claim, and high-risk unauthenticated forms.
+
+## 11. Admin setup
+- Add approved admin user IDs/emails to `admin_users` through secure SQL or admin seed script.
+- Admin routes must check Supabase session and `admin_users` membership.
+- Admin navigation must be absent from public navigation.
+
+## 12. `.env.example` variable names only
+```bash
+# Site
+NEXT_PUBLIC_SITE_URL=
+NEXT_PUBLIC_LAUNCH_MODE=
+SUPPORT_EMAIL=
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_STORAGE_BUCKET=
+
+# Stripe
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PRICE_ID_PREORDER=
+STRIPE_PRICE_ID_REGULAR=
+STRIPE_PRICE_ID_KINDLE_EXTERNAL=
+STRIPE_PRICE_ID_PAPERBACK_EXTERNAL=
+STRIPE_PRICE_ID_WORKSHEETS=
+STRIPE_PRICE_ID_MEMBERSHIP_MONTHLY=
+
+# MailerLite
+MAILERLITE_API_KEY=
+MAILERLITE_GROUP_SUBSCRIBERS=
+MAILERLITE_GROUP_FREE_CHAPTER=
+MAILERLITE_GROUP_PREORDERS=
+MAILERLITE_GROUP_CUSTOMERS=
+MAILERLITE_GROUP_ABANDONED_CHECKOUT=
+MAILERLITE_GROUP_BONUS_CLAIM_STARTED=
+MAILERLITE_GROUP_BONUS_CLAIM_COMPLETED=
+MAILERLITE_GROUP_REFUNDED=
+MAILERLITE_GROUP_VIP_EARLY_READERS=
+MAILERLITE_GROUP_BLOG_READERS=
+MAILERLITE_WEBHOOK_SECRET=
+
+# Resend
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+
+# Analytics / monitoring
+NEXT_PUBLIC_GA4_MEASUREMENT_ID=
+NEXT_PUBLIC_SENTRY_DSN=
+SENTRY_AUTH_TOKEN=
+SENTRY_ORG=
+SENTRY_PROJECT=
+
+# Bot protection
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=
+TURNSTILE_SECRET_KEY=
+```
+
+## 13. Environment use
+| Variable type | Local | Preview | Production |
+|---|---|---|---|
+| Public site URL | localhost | Vercel preview URL | Chosen domain |
+| Supabase | local/test project | preview project | production project |
+| Stripe | test keys | test keys | live keys after approval |
+| MailerLite | test/group sandbox if available | preview groups | production groups |
+| Resend | verified test sender | verified domain | production sender |
+| GA4 | debug stream | preview stream optional | production stream |
+| Sentry | development env | preview env | production env |
+| Turnstile | test keys | preview widget | production widget/domain |
+
+## 14. Before production
+- Domain chosen and DNS configured.
+- Legal pages reviewed.
+- Stripe live products/prices approved.
+- Webhook endpoint live and tested.
+- Supabase RLS verified.
+- Paid files uploaded to private bucket.
+- Download entitlement QA passed.
+- MailerLite groups/automations tested.
+- Resend DNS verified.
+- GA4 consent mode verified.
+- Sentry alerts tested.
+- Turnstile verified on forms.
