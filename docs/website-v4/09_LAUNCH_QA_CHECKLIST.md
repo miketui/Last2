@@ -147,3 +147,20 @@ No app scaffold, credentials, live payment activation, or release/book/build/arc
 - [ ] Verify Turnstile sandbox/test behavior or record an intentional skip with remediation.
 - [ ] Verify analytics consent behavior and confirm server-side operational payloads contain no signed URLs, secrets, tokens, or full PII.
 - [ ] Confirm production activation is still blocked: no live keys, no live payments, no production deploy, no live subscription offer.
+
+
+## Prompt 7 sandbox verification QA additions
+
+- [ ] Confirm sandbox credentials are present only in secure runtime/Vercel Preview env, never in tracked files.
+- [ ] Rerun `pnpm check:sandbox-env` after copying sandbox env values and confirm placeholders are not counted as provider-ready.
+- [ ] Rerun `pnpm check:supabase-storage` with sandbox Supabase credentials and confirm the `curls-deliverables` bucket is private.
+- [ ] Verify both locked private Storage object paths exist remotely and no upload/move operation touches `apps/author-site/public/`.
+- [ ] Verify Supabase migration/RLS with anon, authenticated customer, admin, and service-role clients before preview handoff.
+- [ ] Rerun `pnpm check:stripe-test` with Stripe test keys and verify no live/restricted key pattern is accepted.
+- [ ] Create a Stripe test Checkout Session only after test price IDs are configured, then replay bad signature, completed checkout, expired checkout, and refund events.
+- [ ] Send Resend transactional smoke messages only to an explicitly configured `SANDBOX_TEST_EMAIL`.
+- [ ] Mutate MailerLite subscribers only in sandbox groups and only with sandbox/test recipient addresses.
+- [ ] Verify Turnstile missing/invalid challenges fail safely before accepting public form submissions.
+- [ ] Verify GA4/PostHog consent behavior with sandbox IDs: marketing events wait for consent, operational security/order/download events strip sensitive metadata.
+- [ ] Confirm Vercel Preview has sandbox-only env vars and Production env remains locked/empty until launch approval.
+- [ ] Before every preview handoff, rerun secret-pattern scan, public paid-file scan, and local env file absence checks.

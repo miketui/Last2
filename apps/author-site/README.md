@@ -180,3 +180,22 @@ GA4 and PostHog are optional sandbox integrations. Consent mode must block marke
 ### Production remains blocked
 
 Before production activation, Michael must approve legal copy, domain/email DNS, Supabase RLS, private Storage, Stripe test checkout/webhook/refund, protected download revocation, Resend/MailerLite sandbox sends, analytics consent behavior, and final launch QA. Do not activate live payments or a subscription offer in Prompt 6.
+
+
+## Prompt 7 sandbox verification
+
+Prompt 7 documents provider-readiness without using production keys or deploying production. The complete report lives at `../../docs/website-v4/14_SANDBOX_VERIFICATION_REPORT.md` from this app directory.
+
+Run the safe verification suite from `apps/author-site/`:
+
+```bash
+pnpm check:sandbox
+pnpm check:sandbox-env
+pnpm check:deliverables
+pnpm check:supabase-storage
+pnpm check:stripe-test
+```
+
+Read `docs/website-v4/14_SANDBOX_VERIFICATION_REPORT.md` for the pass/fail/skipped table, missing env names, and next actions. Missing sandbox credentials are expected to report as skipped unless a dangerous live/prod pattern is detected. Placeholder values copied from example files are treated as missing, not provider-ready.
+
+Provider-backed checks remain blocked until sandbox-only credentials are configured through secure local runtime variables or Vercel Preview env. Do not commit `.env.local`, `.env.sandbox`, API keys, signed URLs, customer exports, or provider secrets. Production remains locked: no live payments, no production deploy, and no live subscription offer.

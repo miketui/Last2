@@ -6,7 +6,14 @@ export const providerRequirements = {
   supabase: ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_STORAGE_BUCKET"],
   stripe: ["NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET", "STRIPE_PRICE_ID_PREORDER", "STRIPE_PRICE_ID_REGULAR"],
   resend: ["RESEND_API_KEY", "RESEND_FROM_EMAIL", "SUPPORT_EMAIL"],
-  mailerlite: ["MAILERLITE_API_KEY", "MAILERLITE_GROUP_SUBSCRIBERS", "MAILERLITE_GROUP_FREE_CHAPTER", "MAILERLITE_GROUP_PREORDERS", "MAILERLITE_GROUP_CUSTOMERS"],
+  mailerlite: [
+    "MAILERLITE_API_KEY",
+    "MAILERLITE_GROUP_SUBSCRIBERS",
+    "MAILERLITE_GROUP_FREE_CHAPTER",
+    "MAILERLITE_GROUP_PREORDERS",
+    "MAILERLITE_GROUP_CUSTOMERS",
+    "MAILERLITE_GROUP_REFUNDED"
+  ],
   turnstile: ["NEXT_PUBLIC_TURNSTILE_SITE_KEY", "TURNSTILE_SECRET_KEY"],
   analytics: ["NEXT_PUBLIC_GA4_MEASUREMENT_ID", "NEXT_PUBLIC_POSTHOG_KEY", "NEXT_PUBLIC_POSTHOG_HOST"]
 };
@@ -23,6 +30,13 @@ const secretishNames = new Set([
   "DOWNLOAD_TOKEN_SECRET",
   "CRON_SECRET"
 ]);
+
+export function isMeaningfulSandboxValue(value) {
+  if (typeof value !== "string") return Boolean(value);
+  const trimmed = value.trim();
+  if (!trimmed) return false;
+  return !/^(?:replace|replace_|replace-with|placeholder|your_|example_|changeme|todo)/i.test(trimmed);
+}
 
 export function parseDotenv(source) {
   const parsed = {};
@@ -72,8 +86,8 @@ export function detectDangerousSandboxEnv(env, options = {}) {
 export function providerStatus(env) {
   return Object.fromEntries(
     Object.entries(providerRequirements).map(([provider, names]) => {
-      const present = names.filter((name) => Boolean(env[name]));
-      const missing = names.filter((name) => !env[name]);
+      const present = names.filter((name) => isMeaningfulSandboxValue(env[name]));
+      const missing = names.filter((name) => !isMeaningfulSandboxValue(env[name]));
       return [provider, { present: present.length, total: names.length, missing }];
     })
   );
@@ -86,7 +100,7 @@ function printSummary(env) {
     console.log(`- ${provider}: ${label} (${status.present}/${status.total})${status.missing.length ? ` missing ${status.missing.join(", ")}` : ""}`);
   }
 
-  const populatedSecretNames = Object.keys(env).filter((name) => secretishNames.has(name) && Boolean(env[name]));
+  const populatedSecretNames = Object.keys(env).filter((name) => secretishNames.has(name) && isMeaningfulSandboxValue(env[name]));
   console.log(`Secret-bearing variables populated: ${populatedSecretNames.length ? populatedSecretNames.join(", ") : "none"} (values not printed)`);
 }
 
