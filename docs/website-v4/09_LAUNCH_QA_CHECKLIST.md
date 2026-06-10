@@ -132,3 +132,18 @@ No app scaffold, credentials, live payment activation, or release/book/build/arc
 - [ ] Confirm consent banner blocks marketing analytics until consent is granted while server operational events still record security/order/download events.
 - [ ] Verify admin pages are noindex, deny non-admins, and show “connect Supabase to view real data” scaffold state until sandbox admin data is wired.
 - [ ] Run static checks for no `.env.local`, no secret-looking values, no paid EPUB/PDF in public, no deprecated hexes, raw-body Stripe webhook verification, and no service-role key usage in client components before every deploy.
+
+## Prompt 6 sandbox integration readiness QA additions
+
+- [ ] Copy `.env.sandbox.example` into a local-only file and confirm no real secrets are committed.
+- [ ] Run `cd apps/author-site && pnpm check:sandbox`; document missing providers as skipped, not failed, unless a dangerous live value is detected.
+- [ ] Apply Supabase migration in sandbox and verify RLS is enabled for every Prompt 5 table.
+- [ ] Verify private bucket `curls-deliverables` exists, is not public, and contains the locked EPUB/PDF object paths.
+- [ ] Verify `/api/downloads/sign` grants signed URLs only to active entitled users and denies unauthenticated, refunded, revoked, and over-limit cases.
+- [ ] Verify Stripe test-mode products/prices exist for `$17.99` preorder and `$19.99` regular direct.
+- [ ] Replay Stripe webhook events in test mode: `checkout.session.completed`, `checkout.session.expired`, and `charge.refunded`.
+- [ ] Verify Resend sandbox messages for order confirmation, download access, free chapter, bonus claim received, refund/access revoked, and support receipt.
+- [ ] Verify MailerLite sandbox subscriber add/update and group assignment; confirm no production broadcast or automation is touched.
+- [ ] Verify Turnstile sandbox/test behavior or record an intentional skip with remediation.
+- [ ] Verify analytics consent behavior and confirm server-side operational payloads contain no signed URLs, secrets, tokens, or full PII.
+- [ ] Confirm production activation is still blocked: no live keys, no live payments, no production deploy, no live subscription offer.

@@ -91,3 +91,92 @@ Scaffolded: final Supabase project, live Stripe products, MailerLite automations
 - Stripe test checkout/webhook/refund pass.
 - Protected download signing and revocation pass.
 - No real secrets committed and no paid files in `public/`.
+
+## Sandbox integration
+
+Prompt 6 prepares the app for real sandbox verification while keeping production locked. Use `docs/website-v4/12_SANDBOX_INTEGRATION_RUNBOOK.md` as the step-by-step source of truth and `docs/website-v4/13_SANDBOX_TEST_RESULTS_TEMPLATE.md` to record results without secrets.
+
+### Sandbox env file
+
+1. Copy `apps/author-site/.env.sandbox.example` to a local-only `.env.sandbox` or copy selected values into `.env.local`.
+2. Fill sandbox/test values only. Never use production/live API keys.
+3. Never commit `.env.local`, `.env.sandbox`, signed URLs, customer exports, or provider secrets.
+4. Keep production env scopes empty/blocked until launch approval.
+
+Run the safe readiness checks:
+
+```bash
+pnpm check:sandbox
+```
+
+The sandbox checks hide secret values, allow missing provider credentials during scaffolding, and fail only on dangerous conditions such as live Stripe key patterns or paid EPUB/PDF files in `public/`.
+
+### Supabase sandbox
+
+Apply the migration in a sandbox Supabase project:
+
+```bash
+cd apps/author-site
+supabase db push --include-all
+# or run supabase/migrations/0001_author_commerce.sql in the Supabase SQL editor.
+```
+
+Create private Storage bucket `curls-deliverables` with public access disabled. Upload the local release artifacts from the repo root to these private object paths only:
+
+- EPUB: `books/curls-and-contemplation/epub/Curls-and-Contemplation-v8-20260610.epub`
+- PDF: `books/curls-and-contemplation/pdf/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`
+
+Source artifacts remain outside public:
+
+- `release/Curls-and-Contemplation-v8-20260610.epub`
+- `release/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`
+
+After credentials are present, run:
+
+```bash
+pnpm check:supabase-storage
+```
+
+Without Supabase credentials, this check verifies locked path strings and safely skips the remote bucket/object probe.
+
+### Stripe test mode
+
+In Stripe Dashboard **Test mode**:
+
+1. Create product `Curls & Contemplation — Direct Preorder` with one-time `$17.99` price and set `STRIPE_PRICE_ID_PREORDER`.
+2. Create product `Curls & Contemplation — Direct Regular Edition` with one-time `$19.99` price and set `STRIPE_PRICE_ID_REGULAR`.
+3. Set test keys only: `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_SECRET_KEY`, and `STRIPE_WEBHOOK_SECRET`.
+4. Create a test webhook endpoint at `/api/stripe/webhook` for `checkout.session.completed`, `checkout.session.expired`, `charge.refunded`, optional `payment_intent.succeeded`, and subscription placeholder events.
+
+If Stripe CLI is available:
+
+```bash
+stripe login
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+stripe trigger checkout.session.completed
+stripe trigger charge.refunded
+```
+
+Run:
+
+```bash
+pnpm check:stripe-test
+```
+
+The check fails on live key patterns and skips safely if test credentials are missing.
+
+### Resend and MailerLite sandbox
+
+Configure Resend sandbox/test sender values: `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and `SUPPORT_EMAIL`. Test order confirmation, download access, free chapter delivery, bonus claim received, refund/access revoked, and support receipt messages only against sandbox recipients. Production SPF, DKIM, and DMARC remain a launch gate.
+
+Configure MailerLite sandbox groups for Subscribers, Free Chapter, Preorders, Customers, Abandoned Checkout, Bonus Claim Started, Bonus Claim Completed, Refunded, Blog Readers, and VIP / Early Readers. Set the matching `MAILERLITE_GROUP_*` env IDs and test add/update plus group assignment without sending a production broadcast.
+
+### Turnstile and analytics sandbox
+
+Use Turnstile sandbox/test keys when available. Missing keys must fail safely and must not cause forms to trust unverified high-risk submissions.
+
+GA4 and PostHog are optional sandbox integrations. Consent mode must block marketing analytics until accepted, while server-side operational events may record fulfillment/security events without signed URLs, secrets, tokens, or full PII.
+
+### Production remains blocked
+
+Before production activation, Michael must approve legal copy, domain/email DNS, Supabase RLS, private Storage, Stripe test checkout/webhook/refund, protected download revocation, Resend/MailerLite sandbox sends, analytics consent behavior, and final launch QA. Do not activate live payments or a subscription offer in Prompt 6.

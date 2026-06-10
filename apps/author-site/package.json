@@ -8,7 +8,12 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "build": "next build"
+    "build": "next build",
+    "check:sandbox-env": "node scripts/check-sandbox-env.mjs",
+    "check:deliverables": "node scripts/check-public-deliverables.mjs",
+    "check:supabase-storage": "node scripts/verify-supabase-storage-paths.mjs",
+    "check:stripe-test": "node scripts/stripe-test-mode-check.mjs",
+    "check:sandbox": "pnpm check:sandbox-env && pnpm check:deliverables && pnpm check:supabase-storage && pnpm check:stripe-test"
   },
   "dependencies": {
     "@supabase/supabase-js": "latest",

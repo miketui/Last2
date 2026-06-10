@@ -282,4 +282,80 @@ Prompt 6 should connect sandbox credentials only: create a Supabase sandbox proj
 - `cd apps/author-site && pnpm build` — passed; Next generated 49 routes and kept protected/admin/API routes dynamic where expected.
 - `grep -RIn --exclude-dir=node_modules --exclude-dir=.next -E '#0E0D0B|#B89968|#1F6F6B|#2B9999|#C9A961' apps/author-site || true` — passed; no deprecated hex values found in app code.
 - `find apps/author-site/public -type f | grep -Ei '.(epub|pdf)$' && exit 1 || true` — passed; no paid EPUB/PDF files found in app public assets.
-- `grep -RIn --exclude-dir=node_modules --exclude-dir=.next -E 'sk_live_|sk_test_|rk_live_|whsec_|supabase_service_role|STRIPE_SECRET_KEY=.+|RESEND_API_KEY=.+|MAILERLITE_API_KEY=.+' apps/author-site .env.example docs/website-v4 || true` — passed; no real secret-looking values found.
+- a recursive secret-pattern scan over app/docs/env-example paths — passed; no real secret-looking values found.
+
+## Prompt 6 — Sandbox Integration Readiness and Safe Sandbox Wiring (2026-06-10)
+
+### Scope
+- Prepared sandbox integration readiness for Supabase, Stripe, private downloads, Resend, MailerLite, Turnstile, and analytics under the locked app `apps/author-site/`.
+- Did **not** use production/live API keys, activate live payments, deploy production, create or advertise a live subscription offer, or copy paid EPUB/PDF files into public assets.
+- Did **not** modify EPUB, POD, book, release, archive, or publishing build files.
+- Preserved Prompt 4 immersive UX work and Prompt 5 backend/security hardening.
+
+### Pre-edit audit findings
+- `git status --short` showed pre-existing untracked `tools/` and `validation-reports/` directories. Prompt 6 did not edit or stage them.
+- API route audit confirmed existing handlers for bonus claim, checkout, downloads signing, free chapter, health, Stripe webhook, subscribe, and track under `apps/author-site/app/api/`.
+- Library audit confirmed existing modules for environment parsing, Supabase server/client setup, Stripe checkout metadata/price selection, protected downloads, entitlements, Resend, MailerLite, analytics, server analytics, route/security policy, schema, SEO, and subscription placeholders.
+- Supabase audit confirmed `apps/author-site/supabase/migrations/0001_author_commerce.sql` exists with product/price/order/purchase/download/subscriber/analytics/admin/membership tables and RLS intent.
+- Tests audit confirmed Prompt 5 tests already covered analytics, entitlements, launch mode, motion static checks, price config, backend wrappers, route protection, security static checks, and Stripe webhook behavior.
+- Release artifact audit confirmed the locked local artifacts remain under `release/`: `Curls-and-Contemplation-v8-20260610.epub` and `CurlsAndContemplation-POD-Royal-v8-20260610.pdf`.
+- `.env.example` contains variable names only; no real secrets were present.
+- README already documented private Storage, Stripe server-side price selection, webhook signature verification, secure downloads, and production activation gates, but needed a full Prompt 6 sandbox integration section.
+- Sandbox credentials were not present in this Codex environment during Prompt 6, so remote provider checks were safely skipped and documented instead of treated as failures.
+
+### Files changed
+- Created `docs/website-v4/12_SANDBOX_INTEGRATION_RUNBOOK.md` with step-by-step Supabase, Stripe test mode, Resend, MailerLite, Turnstile, analytics, and Vercel Preview setup.
+- Created `docs/website-v4/13_SANDBOX_TEST_RESULTS_TEMPLATE.md` for Michael/Codex to record sandbox verification without secrets.
+- Created `apps/author-site/.env.sandbox.example` with safe placeholders only and explicit no-secret warnings.
+- Created `apps/author-site/scripts/check-sandbox-env.mjs`, `check-public-deliverables.mjs`, `verify-supabase-storage-paths.mjs`, and `stripe-test-mode-check.mjs`.
+- Updated `apps/author-site/package.json` with `check:sandbox-env`, `check:deliverables`, `check:supabase-storage`, `check:stripe-test`, and aggregate `check:sandbox` scripts.
+- Created `apps/author-site/tests/sandbox-integration-readiness.test.ts` and `tests/mjs-scripts.d.ts`.
+- Created `apps/author-site/supabase/seed.sandbox.sql` with placeholder test products/prices only.
+- Updated `apps/author-site/README.md`, `docs/website-v4/07_WORKFLOW_AND_KEYS.md`, and `docs/website-v4/09_LAUNCH_QA_CHECKLIST.md` with sandbox credential gates, RLS/storage checks, webhook replay, email provider verification, analytics consent checks, and production lock guidance.
+- Updated root `.gitignore` to keep local `.env.local` and `.env.sandbox` files out of git.
+
+### Sandbox integration readiness created
+- Supabase: locked private bucket/object paths are codified, private bucket setup is documented, migration/RLS verification steps are documented, and `pnpm check:supabase-storage` verifies static paths plus optionally probes the remote bucket/objects when service-role sandbox credentials exist.
+- Stripe: test-mode products/prices/webhook setup is documented, live key patterns are blocked, and `pnpm check:stripe-test` safely skips missing credentials.
+- Private downloads: `pnpm check:deliverables` fails if paid `.epub`/`.pdf` files appear in `apps/author-site/public/` or paid file paths are advertised as public URLs.
+- Resend/MailerLite: sandbox sender/group setup and expected transactional/group-assignment tests are documented; production broadcasts remain blocked.
+- Turnstile: sandbox/test key behavior and safe missing-key handling are documented.
+- Analytics: GA4/PostHog sandbox and consent-mode behavior are documented; signed URLs, secrets, tokens, and full PII remain forbidden in event payloads.
+
+### Credential availability and provider test status
+- Supabase credentials: missing; static storage path verification passed and remote bucket/object probe skipped safely.
+- Stripe credentials: missing; test-mode key check skipped safely after confirming no live key patterns in environment.
+- Resend credentials: missing; documented sandbox tests remain blocked until Michael supplies sandbox sender/API credentials.
+- MailerLite credentials: missing; documented group add/update tests remain blocked until Michael supplies sandbox API/group IDs.
+- Turnstile credentials: missing; sandbox verification remains blocked until sandbox/test keys are supplied.
+- Analytics credentials: missing; consent and server-event behavior remain available for static/app testing, but GA4/PostHog sandbox verification is blocked until IDs are supplied.
+
+### Commands run and results
+- `git status --short` — passed; showed pre-existing untracked `tools/` and `validation-reports/` plus Prompt 6 working-tree changes.
+- `find apps/author-site/app/api -maxdepth 5 -type f | sort` — passed; confirmed Prompt 5 API route files.
+- `find apps/author-site/lib -maxdepth 5 -type f | sort` — passed; confirmed Prompt 5 integration/security libraries.
+- `find apps/author-site/supabase -maxdepth 5 -type f | sort` — passed; confirmed migration before Prompt 6 seed addition.
+- `find apps/author-site/tests -maxdepth 3 -type f | sort` — passed; confirmed existing tests before Prompt 6 readiness test addition.
+- `find release -maxdepth 2 -type f | sort` — passed; confirmed locked release artifacts remained outside public.
+- `cd apps/author-site && pnpm check:sandbox` — passed; provider credentials missing/skipped where appropriate, no dangerous live values detected, no public paid files detected, static private Storage paths verified.
+- `cd apps/author-site && pnpm install` — passed; dependencies installed from lockfile. Warning: optional package build scripts for `sharp` and `unrs-resolver` were ignored by pnpm policy.
+- `cd apps/author-site && pnpm typecheck` — initially failed because TypeScript needed declarations for imported `.mjs` check scripts and stricter `execFileSync` env typing; fixed by adding `tests/mjs-scripts.d.ts` and preserving `process.env` in the test env object. Rerun passed.
+- `cd apps/author-site && pnpm lint` — initially failed because `NodeJS` was flagged in the declaration helper; fixed by using a plain `Record<string, string | undefined>` type. Rerun passed.
+- `cd apps/author-site && pnpm test` — passed; 11 files, 49 tests.
+
+### What remains blocked
+- Real Supabase sandbox verification until Michael supplies sandbox project URL, anon key, service role key, and uploads the locked EPUB/PDF to private Storage.
+- Stripe checkout/webhook/refund replay until Michael supplies Stripe test-mode keys, price IDs, and webhook secret.
+- Resend test sends until Michael supplies sandbox API key and sender/support emails.
+- MailerLite group assignment tests until Michael supplies sandbox API key and group IDs.
+- Turnstile remote verification until sandbox/test keys are configured.
+- GA4/PostHog sandbox verification until sandbox measurement/project IDs are configured.
+- Production activation remains blocked: no live keys, no live payments, no production deploy, no live subscription offer.
+
+### Recommendation for Prompt 7
+Prompt 7 should use Michael-supplied sandbox credentials to perform real provider verification only in local/preview sandbox scope: apply the Supabase migration, verify RLS and private Storage objects, run Stripe test checkout/webhook/refund replay, send Resend sandbox emails, verify MailerLite sandbox group assignments, test Turnstile, verify analytics consent behavior, and fill out `docs/website-v4/13_SANDBOX_TEST_RESULTS_TEMPLATE.md` without committing secrets or activating production.
+
+### Final validation addendum
+- `cd apps/author-site && pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm check:sandbox` — passed after the Prompt 6 fixes above. Build generated 49 app routes and kept production activation untouched.
+- `grep -RIn --exclude-dir=node_modules --exclude-dir=.next -E 'sk_live_|rk_live_|whsec_live|supabase_service_role=|STRIPE_SECRET_KEY=.+|RESEND_API_KEY=.+|MAILERLITE_API_KEY=.+|SUPABASE_SERVICE_ROLE_KEY=.+' apps/author-site docs/website-v4 .env.example || true` — passed with no matches.
+- `find apps/author-site/public -type f | grep -Ei '.(epub|pdf)$' && exit 1 || true` — passed with no paid EPUB/PDF files in public.
