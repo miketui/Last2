@@ -184,3 +184,102 @@ Prompt 4 should harden the immersive design/motion pass: convert `middleware.ts`
 
 ### Recommendation for Prompt 5
 - Prompt 5 should focus on backend/security implementation hardening only after owner-provided sandbox credentials are available: Supabase Auth/DB/RLS/private Storage wiring, Stripe Checkout/webhook integration with signature verification, entitlement creation/revocation, Resend/MailerLite test-mode flows, and admin data access checks. Do not activate production payments or subscriptions until Michael explicitly approves the offer and keys.
+
+## Prompt 5 — Backend, Security, Analytics, Supabase, Stripe, Entitlement, Email, Admin-Data, and Integration Hardening (2026-06-10)
+
+### Scope
+- Hardened the existing app under `apps/author-site/` for sandbox-ready Supabase, Stripe Checkout/webhooks, protected downloads, entitlement checks, Resend, MailerLite, consent-aware analytics, admin gates, and static security checks.
+- Did **not** modify EPUB, POD, book, release, archive, or publishing build files.
+- Did **not** copy paid EPUB/PDF files into `public/`, commit real secrets, activate live payments, deploy production, or create a live subscription offer.
+
+### Pre-edit audit findings
+- `git status --short` showed pre-existing untracked `tools/` and `validation-reports/`; these were not touched.
+- API routes existed but were scaffold-light: checkout used Zod but trusted only basic product input; webhook verified signatures but had no typed idempotent handlers; downloads denied by default in tests but needed typed reasons and private locked paths; subscribe/free-chapter/bonus-claim needed safer typed fallback responses.
+- `lib/env.ts` parsed all env at import time but needed separate public/server helpers, route-level runtime config results, and no build-time production-secret requirement.
+- Supabase clients existed but needed browser/server separation, service-role confinement, current user helpers, and admin allowlist/admin_users readiness.
+- Migration contained the core tables but needed stronger checks, subscription-ready inactive fields, detailed RLS policy intent, admin policies, and private bucket notes.
+- MailerLite/Resend wrappers skipped missing config but needed typed groups/templates and invalid-email handling.
+- Analytics event map needed the full Prompt 5 taxonomy, consent behavior, and metadata sanitization.
+
+### Files changed
+- Backend/API: `app/api/checkout/route.ts`, `app/api/stripe/webhook/route.ts`, `app/api/downloads/sign/route.ts`, `app/api/subscribe/route.ts`, `app/api/free-chapter/route.ts`, `app/api/bonus-claim/route.ts`, `app/api/track/route.ts`.
+- Libraries: `lib/env.ts`, `lib/stripe.ts`, `lib/entitlements.ts`, `lib/downloads.ts`, `lib/supabase/client.ts`, `lib/supabase/server.ts`, `lib/email/mailerlite.ts`, `lib/email/resend.ts`, `lib/analytics.ts`, `lib/events/server-analytics.ts`, `lib/security.ts`.
+- UI/admin/customer: `components/AnalyticsEvent.tsx`, `components/ConsentBanner.tsx`, `app/downloads/page.tsx`, `content/site.ts`.
+- Database: `supabase/migrations/0001_author_commerce.sql`.
+- Tests: `tests/prompt5-backend.test.ts`, `tests/static-security-prompt5.test.ts`, plus existing analytics/security/webhook tests remain active.
+- Docs/env: `apps/author-site/.env.example`, `apps/author-site/README.md`, `docs/website-v4/07_WORKFLOW_AND_KEYS.md`, `docs/website-v4/09_LAUNCH_QA_CHECKLIST.md`, this build log.
+
+### Backend/security improvements
+- Environment helpers now fail safely at route runtime with typed `config_missing` results and expose `getSiteUrl`, `getLaunchMode`, `getStripeConfig`, `getSupabaseServerConfig`, `getMailerLiteConfig`, `getResendConfig`, and `getAnalyticsConfig` without logging secret values.
+- Server-side Supabase helper confines service-role usage to server modules and adds session/admin helper support.
+- API responses avoid raw stack traces and return typed error codes.
+- Static tests check no `.env.local`, no paid EPUB/PDF in public, no release/public paths returned from download API, webhook raw body/signature verification, and no service-role key in client components.
+
+### Supabase/RLS improvements
+- Migration now includes `profiles`, `products`, `prices`, `orders`, `purchases`, `download_tokens`, `download_events`, `bonus_claims`, `subscribers`, `subscriber_events`, `consent_log`, `webhook_events`, `analytics_events`, `gate_ledger`, `admin_users`, and inactive membership placeholders.
+- Product/price/purchase schema supports future subscription data (`products.type`, `prices.interval`, purchase statuses) without making a live subscription offer.
+- RLS comments explain own-profile, own-purchase, own-download metadata, bonus claim, subscriber insert, admin, and service-role intentions.
+- Private bucket note locks storage to `curls-deliverables` with server-generated signed URLs only.
+
+### Stripe checkout/webhook improvements
+- Checkout validates with Zod, ignores client price/priceId, selects price IDs server-side by launch mode, blocks paused mode, builds success/cancel URLs from `NEXT_PUBLIC_SITE_URL`, optionally passes valid customer email, and writes safe metadata.
+- Webhook reads raw body via `request.text()`, verifies `STRIPE_WEBHOOK_SECRET`, rejects missing/bad signatures with 400, records idempotency through `webhook_events`, and scaffolds handlers for checkout completion, payment intent success, refunds, expired checkout sessions, and subscription event placeholders.
+- Checkout completion helper creates order/purchase/subscriber/analytics/email intents when Supabase and providers are configured; refund helper revokes entitlement in the mocked/sandbox path.
+
+### Download entitlement improvements
+- Downloads deny by default, require a session, check active purchase by user ID or email, deny refunded/revoked/canceled/past_due purchases, enforce a 3 downloads / 7 days cap scaffold, use a 24-hour signed URL TTL, and never return local `release/` or app `public/` paths.
+- Locked private target paths are `books/curls-and-contemplation/epub/Curls-and-Contemplation-v8-20260610.epub` and `books/curls-and-contemplation/pdf/CurlsAndContemplation-POD-Royal-v8-20260610.pdf` in bucket `curls-deliverables`.
+
+### MailerLite/Resend improvements
+- MailerLite has typed group mapping for Subscribers, Free Chapter, Preorders, Customers, Abandoned Checkout, Bonus Claim Started, Bonus Claim Completed, Refunded, Blog Readers, and VIP / Early Readers.
+- Resend has typed helper/templates for order confirmation, download access, free chapter delivery, bonus claim received, refund/access revoked, and support receipt.
+- Missing provider config skips safely; invalid emails are rejected; no API key values are logged or returned.
+
+### Analytics improvements
+- Central event map now includes Prompt 5 marketing, commerce, auth, customer, and design/experience names.
+- `/api/track` validates event names with Zod, respects consent for client analytics, allows operational server events, and strips sensitive metadata such as tokens, signed URLs, keys, email, payment/card fields.
+- Consent banner stores explicit analytics choice and keeps operational security/order/download events separate from marketing consent.
+
+### Tests added/updated
+- Added Prompt 5 backend tests for server-side price selection, paused checkout, metadata, private deliverable paths, unauthenticated denial, MailerLite mapping/skips, Resend templates/skips, analytics sanitization, and admin allowlist behavior.
+- Added Prompt 5 static security tests for local env files, paid public files, release path leakage, webhook signature verification, and service-role key client leakage.
+
+### Commands run and results
+- `git status --short` — passed; pre-existing untracked `tools/` and `validation-reports/` noted.
+- `find apps/author-site/app/api -maxdepth 5 -type f | sort` — passed.
+- `find apps/author-site/lib -maxdepth 5 -type f | sort` — passed.
+- `find apps/author-site/supabase -maxdepth 5 -type f | sort` — passed.
+- `find apps/author-site/tests -maxdepth 3 -type f | sort` — passed.
+- `cd apps/author-site && pnpm install` — passed; installed dependencies from lockfile. Warning: optional build scripts for `sharp`/`unrs-resolver` were ignored by pnpm policy.
+- `cd apps/author-site && pnpm typecheck` — initially failed before install because `node_modules` were absent; passed after `pnpm install`.
+- `cd apps/author-site && pnpm test` — initially failed because `server-only` was not available in Vitest and legacy analytics aliases expected Prompt 4 names; removed that import and kept backward-compatible aliases. Final run passed: 10 files, 41 tests.
+- `cd apps/author-site && pnpm lint` — initially failed on synchronous `setState` in `ConsentBanner`; fixed with lazy state initialization. Final run passed.
+- Final build/static security commands are recorded after validation below.
+
+### What is real vs scaffolded
+- Real: typed fail-closed routes, server-side Stripe price selection, raw-body webhook verification, idempotency table writes when configured, entitlement denial/signing path, private storage paths, migration/RLS policy intent, email provider wrappers, analytics sanitization/consent scaffolding, admin allowlist/admin_users gate, static security tests.
+- Scaffolded: Supabase project connection, actual Storage bucket/object upload, Stripe test products/prices/webhook endpoint, Resend verified sender/domain, MailerLite group IDs/automations, Turnstile remote verification, GA4/PostHog activation, real admin data tables UI, and any future subscription offer.
+
+### Credentials missing in this environment
+- Missing/unused sandbox credentials: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID_PREORDER`, `STRIPE_PRICE_ID_REGULAR`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, `SUPPORT_EMAIL`, `MAILERLITE_API_KEY`, MailerLite group IDs, `TURNSTILE_SECRET_KEY`, GA4/PostHog optional keys.
+- Tests used mocks/static assertions and safe skipped-provider responses where credentials were absent.
+
+### Risk register
+- Supabase SQL must be applied to a sandbox project and RLS verified with anon/authenticated/service-role clients before production.
+- Stripe webhook idempotency and order/purchase writes require sandbox event replay with test price IDs.
+- Download cap currently uses purchase `download_count`; production may need rolling-window enforcement via `download_events` query before launch.
+- Resend free-chapter delivery intentionally does not include a fake public URL; final asset/email attachment strategy needs approval.
+- Admin pages are gated and noindex but still scaffolded; production data views should be built behind server-only admin routes.
+
+### Recommendation for Prompt 6
+Prompt 6 should connect sandbox credentials only: create a Supabase sandbox project, apply the migration, create the private `curls-deliverables` bucket, upload the two locked release artifacts to the private paths, create Stripe test-mode products/prices/webhook endpoint, configure Resend/MailerLite sandbox settings, run webhook/download/email integration tests against sandbox, and keep production/live activation blocked until QA/legal/domain approvals are complete.
+
+### Final Prompt 5 validation results
+- `cd apps/author-site && pnpm install` — passed; lockfile already up to date.
+- `cd apps/author-site && pnpm lint` — passed after fixing the consent banner state initialization.
+- `cd apps/author-site && pnpm typecheck` — passed.
+- `cd apps/author-site && pnpm test` — passed: 10 test files, 41 tests.
+- `cd apps/author-site && pnpm build` — passed; Next generated 49 routes and kept protected/admin/API routes dynamic where expected.
+- `grep -RIn --exclude-dir=node_modules --exclude-dir=.next -E '#0E0D0B|#B89968|#1F6F6B|#2B9999|#C9A961' apps/author-site || true` — passed; no deprecated hex values found in app code.
+- `find apps/author-site/public -type f | grep -Ei '.(epub|pdf)$' && exit 1 || true` — passed; no paid EPUB/PDF files found in app public assets.
+- `grep -RIn --exclude-dir=node_modules --exclude-dir=.next -E 'sk_live_|sk_test_|rk_live_|whsec_|supabase_service_role|STRIPE_SECRET_KEY=.+|RESEND_API_KEY=.+|MAILERLITE_API_KEY=.+' apps/author-site .env.example docs/website-v4 || true` — passed; no real secret-looking values found.

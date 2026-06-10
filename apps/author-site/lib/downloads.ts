@@ -1,25 +1,48 @@
 import { siteConfig } from "@/content/site";
-import { checkDownloadEntitlement } from "@/lib/entitlements";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { DOWNLOAD_CAP, DOWNLOAD_WINDOW_DAYS, checkDownloadEntitlement, type DeliverableKind, type DownloadDenialReason } from "@/lib/entitlements";
+import { getSupabaseServerConfig } from "@/lib/env";
+import { createServerSupabaseClient, type SessionUser } from "@/lib/supabase/server";
+
+export const PRIVATE_BUCKET = "curls-deliverables";
+export const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24;
 
 export const deliverables = {
-  epub: { slug: "epub", label: "EPUB", path: siteConfig.deliverables.epub },
-  pdf: { slug: "pdf", label: "PDF", path: siteConfig.deliverables.pdf }
+  epub: { slug: "epub", label: "EPUB", path: "books/curls-and-contemplation/epub/Curls-and-Contemplation-v8-20260610.epub" },
+  pdf: { slug: "pdf", label: "PDF", path: "books/curls-and-contemplation/pdf/CurlsAndContemplation-POD-Royal-v8-20260610.pdf" }
 } as const;
 
 export type DeliverableSlug = keyof typeof deliverables;
+export type SignedDownloadResult =
+  | { allowed: true; url: string; expiresInSeconds: number; label: string }
+  | { allowed: false; reason: DownloadDenialReason };
 
-export async function createSignedDownloadUrl(userId: string, slug: DeliverableSlug) {
-  const entitlement = await checkDownloadEntitlement(userId, slug);
+export function isSafePrivateDeliverablePath(path: string) {
+  return !path.startsWith("/") && !path.includes("release/") && !path.includes("public/") && (path.endsWith(".epub") || path.endsWith(".pdf"));
+}
+
+export async function createSignedDownloadUrl(user: SessionUser | null, slug: DeliverableSlug): Promise<SignedDownloadResult> {
+  const entitlement = await checkDownloadEntitlement(user, slug as DeliverableKind);
   if (!entitlement.allowed) return entitlement;
 
+  const config = getSupabaseServerConfig(true);
+  if (!config.ok) return { allowed: false, reason: "config_missing" };
   const supabase = createServerSupabaseClient(true);
-  if (!supabase) return { allowed: false as const, reason: "Download signing service is not configured." };
+  if (!supabase) return { allowed: false, reason: "config_missing" };
 
   const item = deliverables[slug];
-  const { data, error } = await supabase.storage.from(siteConfig.storageBucket).createSignedUrl(item.path, 60 * 60 * 24);
-  if (error || !data?.signedUrl) return { allowed: false as const, reason: "Unable to create a private signed URL." };
+  if (!isSafePrivateDeliverablePath(item.path)) return { allowed: false, reason: "storage_error" };
 
-  await supabase.from("download_events").insert({ user_id: userId, purchase_id: entitlement.purchaseId, deliverable_slug: slug, event_type: "download_signed" });
-  return { allowed: true as const, url: data.signedUrl, expiresInSeconds: 60 * 60 * 24 };
+  const bucket = config.value.bucket || siteConfig.storageBucket || PRIVATE_BUCKET;
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(item.path, SIGNED_URL_TTL_SECONDS);
+  if (error || !data?.signedUrl || data.signedUrl.includes("/release/")) return { allowed: false, reason: "storage_error" };
+
+  await supabase.from("download_events").insert({
+    user_id: entitlement.user.id,
+    purchase_id: entitlement.purchaseId,
+    deliverable_slug: slug,
+    event_type: "download_signed_url_created",
+    metadata: { cap: DOWNLOAD_CAP, window_days: DOWNLOAD_WINDOW_DAYS }
+  });
+  await supabase.from("purchases").update({ download_count: entitlement.downloadsUsed + 1, updated_at: new Date().toISOString() }).eq("id", entitlement.purchaseId);
+  return { allowed: true, url: data.signedUrl, expiresInSeconds: SIGNED_URL_TTL_SECONDS, label: item.label };
 }
