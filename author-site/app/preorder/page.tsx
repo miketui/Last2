@@ -13,20 +13,22 @@ export default function Page() {
       <PageHero
         eyebrow="Direct preorder"
         title="Reserve the direct edition."
-        description="The launch price is $17.99 — and stays there through the first fifteen days after release, then becomes $19.99 permanently. Delivery is protected through your account: EPUB and PDF by signed link, never a public file."
+        description="The launch price is $17.99 — and stays there through the first fifteen days after release, then becomes $19.99 permanently. Pay today; your EPUB and PDF unlock in your account on release day, with a receipt now and a download note the moment they're live."
+        primaryHref="#checkout"
+        primaryLabel="Continue to Checkout"
         secondaryHref="/free-chapter"
         secondaryLabel="Read Chapter 1 Free"
       >
         <ul className="space-y-3 text-sm leading-6 text-whitegold/78">
-          <li>• EPUB/PDF delivered from private storage only — signed URLs, 3 downloads over 7 days.</li>
+          <li>• EPUB/PDF delivered from private storage only — signed links, 3 downloads over 7 days.</li>
           <li>• Regular direct price becomes ${priceConfig.regularDirect.amount.toFixed(2)} after the launch window.</li>
-          <li>• Refunds revoke digital access automatically. Honest both ways.</li>
+          <li>• Refunds are a support email away; they close download access. Honest both ways.</li>
         </ul>
       </PageHero>
-      <Section eyebrow="Checkout" title="Simple, protected, direct.">
+      <Section eyebrow="Checkout" title="What happens after you pay." id="checkout">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <PreorderCheckout />
-          <PricingCard />
+          <PricingCard showCta={false} />
         </div>
       </Section>
     </main>

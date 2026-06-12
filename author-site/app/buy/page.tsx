@@ -4,10 +4,14 @@ import { Section } from "@/components/design/Section";
 import { PricingCard } from "@/components/PricingCard";
 import { PreorderCheckout } from "@/components/PreorderCheckout";
 import { priceConfig } from "@/content/book";
+import { getLaunchMode } from "@/lib/env";
 
 export const metadata = pageMetadata("Buy", "Choose the format that fits how you read — direct digital, Kindle, or paperback.", { path: "/buy" });
 
 export default function Page() {
+  // The charge follows launch mode server-side; the label must tell the same story.
+  const launched = getLaunchMode() === "launched";
+  const price = launched ? priceConfig.regularDirect.amount : priceConfig.preorderDirect.amount;
   return (
     <main>
       <PageHero
@@ -18,7 +22,7 @@ export default function Page() {
         secondaryLabel="Review the Book"
       >
         <div className="grid gap-3 text-sm text-whitegold/78">
-          <p>Direct digital: ${priceConfig.regularDirect.amount.toFixed(2)}</p>
+          <p>Direct digital: ${price.toFixed(2)}{launched ? "" : ` now — $${priceConfig.regularDirect.amount.toFixed(2)} fifteen days after release`}</p>
           <p>Kindle (external store): ${priceConfig.kindleExternal.amount.toFixed(2)}</p>
           <p>Paperback (external, arrives with launch): ${priceConfig.paperbackExternal.amount.toFixed(2)}</p>
         </div>
@@ -27,12 +31,16 @@ export default function Page() {
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <PreorderCheckout
             title="Direct digital edition"
-            price={`$${priceConfig.regularDirect.amount.toFixed(2)}`}
-            ctaLabel={`Buy the Book — $${priceConfig.regularDirect.amount.toFixed(2)}`}
-            note="EPUB + PDF, delivered through your protected account the moment payment clears."
+            price={`$${price.toFixed(2)}`}
+            ctaLabel={`${launched ? "Buy the Book" : "Preorder"} — $${price.toFixed(2)}`}
+            note={
+              launched
+                ? "EPUB + PDF, delivered through your protected account the moment payment clears."
+                : `EPUB + PDF through your protected account. $${priceConfig.regularDirect.amount.toFixed(2)} fifteen days after release — the real schedule, the only urgency.`
+            }
             sourcePage="/buy"
           />
-          <PricingCard />
+          <PricingCard showCta={false} />
         </div>
       </Section>
     </main>

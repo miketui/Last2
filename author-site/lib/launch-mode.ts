@@ -14,7 +14,7 @@ export function getLaunchCta(mode: LaunchMode = getLaunchMode()) {
     case "paused":
       return { label: "Read Chapter 1 Free", href: "/free-chapter", helper: "Direct checkout is paused while the release is reviewed.", priceTier: "paused" as const };
     default:
-      return { label: `Preorder — $${priceConfig.preorderDirect.amount.toFixed(2)}`, href: "/preorder", helper: "Direct launch price. Paid files stay in private storage.", priceTier: "preorder" as const };
+      return { label: `Preorder — $${priceConfig.preorderDirect.amount.toFixed(2)}`, href: "/preorder", helper: "Direct from the author — delivered to your account.", priceTier: "preorder" as const };
   }
 }
 

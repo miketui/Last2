@@ -29,6 +29,10 @@ export async function POST(request: Request) {
   if (!stripe) return NextResponse.json({ ok: false, error: { code: "config_missing", message: "Stripe server configuration is missing." } }, { status: 503 });
 
   const cardDeckPriceId = parsed.data.addCardDeck ? resolveCardDeckPriceId() : undefined;
+  // Never silently drop a paid add-on the buyer asked for.
+  if (parsed.data.addCardDeck && !cardDeckPriceId) {
+    return NextResponse.json({ ok: false, error: { code: "card_deck_unavailable", message: "The Affirmation Card Deck isn't available right now." } }, { status: 503 });
+  }
   const metadata = buildCheckoutMetadata({ ...parsed.data, cardDeck: Boolean(cardDeckPriceId) });
   const urls = checkoutUrls();
 

@@ -26,7 +26,7 @@ export function FreeChapterForm() {
       });
       const json = await response.json().catch(() => null);
       if (response.ok && json?.ok) {
-        router.push("/thank-you");
+        router.push(json.delivery === "email_sent" ? "/thank-you" : "/thank-you?delivery=pending");
         return;
       }
       setStatus("error");

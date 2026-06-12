@@ -41,9 +41,11 @@ export function PreorderCheckout({
       }
       setStatus("error");
       setMessage(
-        json?.error?.code === "config_missing" || json?.error?.code === "checkout_paused"
-          ? "Checkout isn't switched on in this environment yet. Stripe activates with the owner's keys — nothing was charged."
-          : "We couldn't start checkout. Please try again."
+        json?.error?.code === "card_deck_unavailable"
+          ? "The card deck isn't available right now. Uncheck it and your book order will continue — nothing extra was charged."
+          : json?.error?.code === "config_missing" || json?.error?.code === "checkout_paused"
+            ? "Checkout isn't switched on in this environment yet. Stripe activates with the owner's keys — nothing was charged."
+            : "We couldn't start checkout. Please try again."
       );
     } catch {
       setStatus("error");
@@ -74,7 +76,9 @@ export function PreorderCheckout({
       >
         {status === "submitting" ? "Opening secure checkout…" : ctaLabel}
       </button>
-      <p className="mt-3 text-center text-xs text-whitegold/60">Secure checkout by Stripe. Refunds revoke digital access — honest both ways.</p>
+      <p className="mt-3 text-center text-xs leading-5 text-whitegold/70">
+        Secure checkout by Stripe. Not for you? Email support for a refund — plain and human. Refunds close download access (<a href="/refund-policy" className="underline underline-offset-2 hover:text-antique">refund policy</a>).
+      </p>
       {message ? (
         <p role="alert" className="mt-3 text-sm text-mist">
           {message}

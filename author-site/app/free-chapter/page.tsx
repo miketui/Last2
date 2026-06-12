@@ -17,7 +17,7 @@ export default function Page() {
         secondaryHref="/chapters"
         secondaryLabel="Preview Chapters"
       />
-      <Section eyebrow="Get Chapter 1" title="A quiet sample before the direct edition." id="get-chapter">
+      <Section eyebrow="Get Chapter 1" title="In your inbox in under a minute." id="get-chapter">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <FreeChapterForm />
           <div className="editorial-panel rounded-3xl p-6">

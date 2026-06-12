@@ -25,7 +25,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-6xl gap-10 md:grid-cols-[1.2fr_0.8fr_1fr]">
         <div>
           <p className="font-display text-2xl text-white">Curls &amp; Contemplation</p>
-          <p className="mt-3 max-w-sm text-sm leading-6 text-whitegold/70">A freelance hairstylist&rsquo;s guide to creative excellence — written, priced, and delivered directly by the author. Black leads. Gold elevates. Jade distinguishes.</p>
+          <p className="mt-3 max-w-sm text-sm leading-6 text-whitegold/70">A freelance hairstylist&rsquo;s guide to creative excellence — written, priced, and delivered directly by the author.</p>
         </div>
         <nav aria-label="Read and explore" className="text-sm">
           <p className="editorial-kicker">Read</p>
