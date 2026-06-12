@@ -4,7 +4,7 @@ import { Section } from "@/components/design/Section";
 import { StagedNotice } from "@/components/StagedNotice";
 import { challengeDays } from "@/content/funnels";
 
-export const metadata = pageMetadata("The 5-Day Price, Pitch, Protect Challenge", "Five days. Five worksheets. One business blind spot fixed per day.", true);
+export const metadata = pageMetadata("The 5-Day Price, Pitch, Protect Challenge", "Five days. Five worksheets. One business blind spot fixed per day.", { path: "/challenge", noIndex: true });
 
 export default function Page() {
   return (

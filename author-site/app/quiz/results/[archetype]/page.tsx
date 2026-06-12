@@ -13,7 +13,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ archetype: string }> }) {
   const { archetype } = await params;
   const result = quizArchetypes.find((a) => a.slug === archetype);
-  return pageMetadata(result ? result.name : "Quiz Result", "Your blind-spot diagnosis, mapped to the book.", true);
+  return pageMetadata(result ? result.name : "Quiz Result", "Your blind-spot diagnosis, mapped to the book.", { path: `/quiz/results/${archetype}`, noIndex: true });
 }
 
 export default async function Page({ params }: { params: Promise<{ archetype: string }> }) {

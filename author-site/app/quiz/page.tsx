@@ -5,7 +5,7 @@ import { Section } from "@/components/design/Section";
 import { StagedNotice } from "@/components/StagedNotice";
 import { quizArchetypes, quizQuestions } from "@/content/funnels";
 
-export const metadata = pageMetadata("The Stylist Blind-Spot Quiz", "Your craft isn't the problem. Find your blind spot in 90 seconds.", true);
+export const metadata = pageMetadata("The Stylist Blind-Spot Quiz", "Your craft isn't the problem. Find your blind spot in 90 seconds.", { path: "/quiz", noIndex: true });
 
 export default function Page() {
   return (

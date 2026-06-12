@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/seo";
 import { freeChapterLinks } from "@/lib/free-assets";
 import { publicEnv } from "@/lib/env";
 
-export const metadata = pageMetadata("Thank You", "Chapter 1 is on its way — and here's what comes next.", true);
+export const metadata = pageMetadata("Thank You", "Chapter 1 is on its way — and here's what comes next.", { path: "/thank-you", noIndex: true });
 
 export default function Page() {
   const links = freeChapterLinks();
