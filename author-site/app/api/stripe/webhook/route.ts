@@ -94,9 +94,15 @@ export async function POST(request: Request) {
     case "charge.refunded":
       await revokeEntitlementForRefund(event.data.object as Stripe.Charge);
       break;
-    case "checkout.session.expired":
+    case "checkout.session.expired": {
+      // Funnel 1: one compliant abandoned-checkout reminder is sent from
+      // MailerLite (+24h automation, owner-gated); here we only tag the group.
+      const expired = event.data.object as Stripe.Checkout.Session;
+      const abandonedEmail = expired.customer_details?.email ?? expired.customer_email ?? undefined;
+      if (abandonedEmail) await upsertSubscriber(abandonedEmail, "abandoned_checkout", { source: "stripe_checkout_expired" });
       await recordServerEvent({ eventName: analyticsEvents.paymentFailed, route: "/api/stripe/webhook", metadata: { stripeEventId: event.id, expired: true }, operational: true });
       break;
+    }
     case "customer.subscription.created":
     case "customer.subscription.updated":
     case "customer.subscription.deleted":
