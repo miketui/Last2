@@ -52,7 +52,7 @@ export function FreeChapterForm() {
         type="email"
         required
         autoComplete="email"
-        className="mt-2 w-full rounded-full border border-whitegold/20 bg-white px-4 py-3 text-obsidian"
+        className="light mt-2 w-full rounded-full border border-whitegold/20 bg-white px-4 py-3 text-obsidian"
         placeholder="you@example.com"
       />
       {turnstileSiteKey ? (
