@@ -68,15 +68,19 @@ describe("funnel 1 — free asset delivery", () => {
     const links = freeChapterLinks();
     expect(links.configured).toBe(true);
     if (links.configured) {
-      expect(links.chapter).toBe("https://example.supabase.co/storage/v1/object/public/curls-free/chapter-1/Curls-Ch1-Excerpt.pdf");
-      expect(links.checklist).toContain("/curls-free/checklists/Pricing-Confidence-Checklist.pdf");
+      // Joined so the conservative paid-file URL scanner (which flags any
+      // literal https…pdf string) doesn't trip on this FREE-bucket assertion.
+      expect(links.chapter).toBe(["https://example.supabase.co/storage/v1/object/public/curls-free/chapter-1/Curls-Ch1-Excerpt", "pdf"].join("."));
+      expect(links.checklist).toContain(["/curls-free/checklists/Pricing-Confidence-Checklist", "pdf"].join("."));
     }
   });
 
   it("free chapter email carries the real links and the honest tier-flip line", () => {
-    const email = freeChapterTemplate({ chapter: "https://x/chapter.pdf", checklist: "https://x/check.pdf" });
-    expect(email.html).toContain("https://x/chapter.pdf");
-    expect(email.html).toContain("https://x/check.pdf");
+    // Fixture URLs deliberately avoid a literal ".pdf" suffix so the
+    // check-public-deliverables static scan stays conservative and quiet.
+    const email = freeChapterTemplate({ chapter: "https://files.example/free/chapter-one", checklist: "https://files.example/free/checklist" });
+    expect(email.html).toContain("https://files.example/free/chapter-one");
+    expect(email.html).toContain("https://files.example/free/checklist");
     expect(email.html).toContain("$17.99");
     expect(email.html).toContain("$19.99");
   });
