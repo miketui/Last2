@@ -1,3 +1,4 @@
+import { BookGateway } from "@/components/gateway/BookGateway";
 import { BookHero } from "@/components/BookHero";
 import { Section } from "@/components/design/Section";
 import { ExperienceCard } from "@/components/design/ExperienceCard";
@@ -18,6 +19,7 @@ const problemCards = [
 export default function HomePage() {
   return (
     <main>
+      <BookGateway />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(bookJsonLd()) }} />
       <BookHero />
 
