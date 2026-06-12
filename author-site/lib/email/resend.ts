@@ -28,8 +28,14 @@ export function downloadAccessTemplate() {
   return { subject: "Your protected download access", html: "<p>Your EPUB/PDF access is available from your secure dashboard after sign-in.</p>" };
 }
 
-export function freeChapterTemplate() {
-  return { subject: "Your Curls & Contemplation chapter", html: "<p>Your free chapter request is received. The production asset will be attached or linked after email delivery is configured.</p>" };
+export function freeChapterTemplate(links?: { chapter: string; checklist: string }) {
+  if (!links) {
+    return { subject: "Your Curls & Contemplation chapter", html: "<p>Your free chapter request is received. The production asset will be attached or linked after email delivery is configured.</p>" };
+  }
+  return {
+    subject: "Chapter 1 is yours — read it tonight",
+    html: `<p>Thank you for reading with me. Here is everything, instantly:</p><p><a href="${links.chapter}">Chapter 1 — free excerpt (PDF)</a><br/><a href="${links.checklist}">Pricing Confidence Checklist (PDF)</a></p><p>One honest note on price: the direct edition is $17.99 through the first fifteen days after release, then $19.99 permanently. No countdown games — just the real schedule.</p>`
+  };
 }
 
 export const bonusClaimReceivedTemplate = { subject: "Bonus claim received", html: "<p>Your bonus claim was received and is queued for review.</p>" };
@@ -44,8 +50,8 @@ export async function sendDownloadAccess(to: string) {
   return sendTransactionalEmail({ to, ...downloadAccessTemplate() });
 }
 
-export async function sendFreeChapter(to: string) {
-  return sendTransactionalEmail({ to, ...freeChapterTemplate() });
+export async function sendFreeChapter(to: string, links?: { chapter: string; checklist: string }) {
+  return sendTransactionalEmail({ to, ...freeChapterTemplate(links) });
 }
 
 export async function sendBonusClaimReceived(to: string) {

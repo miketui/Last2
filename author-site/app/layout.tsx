@@ -23,9 +23,10 @@ export const metadata: Metadata = {
     description: "A premium author-commerce site for Curls & Contemplation.",
     siteName: siteConfig.name,
     url: siteConfig.siteUrl,
-    type: "website"
+    type: "website",
+    images: [{ url: "/og-default.png", alt: `${siteConfig.name} by ${siteConfig.author}` }]
   },
-  twitter: { card: "summary_large_image", title: siteConfig.name }
+  twitter: { card: "summary_large_image", title: siteConfig.name, images: ["/og-default.png"] }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
