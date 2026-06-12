@@ -132,6 +132,10 @@ export default function CurlTrail({
     const fineMql = window.matchMedia("(hover: hover) and (pointer: fine)");
     const reduceMql = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+    // Intentional one-time post-mount sync: both states must start false on the
+    // server and resolve to real media-query values after hydration. The single
+    // extra render is the SSR-safety mechanism, not a cascade.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setFine(fineMql.matches);
     setReduceMotion(reduceMql.matches);
 

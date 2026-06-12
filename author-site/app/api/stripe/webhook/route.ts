@@ -32,7 +32,10 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) 
     metadata: session.metadata ?? {}
   }, { onConflict: "stripe_checkout_session_id" }).select("id").single();
   if (order?.id) {
-    await supabase.from("purchases").upsert({ order_id: order.id, email, book_slug: "curls-and-contemplation", status: "active", entitlement_status: "active" }, { onConflict: "order_id" });
+    await supabase.from("purchases").upsert({ order_id: order.id, email, book_slug: "curls-and-contemplation", status: "active", entitlement_status: "active" }, { onConflict: "order_id,book_slug" });
+    if (session.metadata?.card_deck === "true") {
+      await supabase.from("purchases").upsert({ order_id: order.id, email, book_slug: "affirmation-deck", status: "active", entitlement_status: "active" }, { onConflict: "order_id,book_slug" });
+    }
   }
   if (email) {
     await supabase.from("subscriber_events").insert({ email, event_type: "customer_created_from_checkout", provider: "stripe", metadata: { checkout_session_id: session.id } });
@@ -50,6 +53,7 @@ export async function revokeEntitlementForRefund(charge: Stripe.Charge) {
   const supabase = createServerSupabaseClient(true);
   if (!supabase) return { ok: false as const, skipped: true as const, reason: "config_missing" as const };
   const { data: order } = await supabase.from("orders").select("id,email").eq("stripe_payment_intent_id", paymentIntent ?? "").maybeSingle();
+  // Revokes every entitlement on the order (book and any order-bump deck).
   if (order?.id) await supabase.from("purchases").update({ status: "refunded", entitlement_status: "revoked", refunded_at: new Date().toISOString(), revoked_at: new Date().toISOString() }).eq("order_id", order.id);
   const notifyEmail = email ?? order?.email;
   if (notifyEmail) {
