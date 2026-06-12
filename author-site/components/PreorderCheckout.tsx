@@ -7,7 +7,19 @@ import { useState, type FormEvent } from "react";
  * Affirmation Card Deck order bump. Posts to /api/checkout and follows the
  * Stripe-hosted session URL. Test mode until live keys are activated.
  */
-export function PreorderCheckout() {
+export function PreorderCheckout({
+  title = "Direct digital edition",
+  price = "$17.99",
+  ctaLabel = "Preorder — $17.99",
+  note = "EPUB + PDF, delivered through your protected account. $19.99 fifteen days after release — that schedule is real and it is the only urgency on this page.",
+  sourcePage = "/preorder"
+}: {
+  title?: string;
+  price?: string;
+  ctaLabel?: string;
+  note?: string;
+  sourcePage?: string;
+}) {
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [message, setMessage] = useState<string | null>(null);
 
@@ -20,7 +32,7 @@ export function PreorderCheckout() {
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product: "direct_ebook", addCardDeck, sourcePage: "/preorder" })
+        body: JSON.stringify({ product: "direct_ebook", addCardDeck, sourcePage })
       });
       const json = await response.json().catch(() => null);
       if (response.ok && json?.ok && json.url) {
@@ -42,10 +54,10 @@ export function PreorderCheckout() {
   return (
     <form onSubmit={onSubmit} className="editorial-panel rounded-[2rem] p-6 md:p-8">
       <div className="flex items-baseline justify-between gap-4">
-        <h3 className="font-display text-3xl text-white">Direct digital edition</h3>
-        <p className="text-2xl text-antique">$17.99</p>
+        <h3 className="font-display text-3xl text-white">{title}</h3>
+        <p className="text-2xl text-antique">{price}</p>
       </div>
-      <p className="mt-2 text-sm leading-6 text-whitegold/70">EPUB + PDF, delivered through your protected account. $19.99 fifteen days after release — that schedule is real and it is the only urgency on this page.</p>
+      <p className="mt-2 text-sm leading-6 text-whitegold/70">{note}</p>
 
       <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-2xl border border-antique/40 bg-white/5 p-4 transition hover:border-antique/70">
         <input type="checkbox" name="card-deck" className="mt-1 h-5 w-5 accent-[#B08D57]" />
@@ -60,7 +72,7 @@ export function PreorderCheckout() {
         disabled={status === "submitting"}
         className="mt-6 w-full rounded-full bg-antique px-5 py-3 font-semibold text-obsidian transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-antique focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian disabled:opacity-60"
       >
-        {status === "submitting" ? "Opening secure checkout…" : "Preorder — $17.99"}
+        {status === "submitting" ? "Opening secure checkout…" : ctaLabel}
       </button>
       <p className="mt-3 text-center text-xs text-whitegold/60">Secure checkout by Stripe. Refunds revoke digital access — honest both ways.</p>
       {message ? (
