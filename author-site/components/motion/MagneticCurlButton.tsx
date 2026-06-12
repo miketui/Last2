@@ -21,7 +21,7 @@ export function MagneticCurlButton({ href, children, className, variant = "prima
   const interactive = !reduced && !disabled && !loading;
 
   const classes = clsx(
-    "group relative inline-flex min-h-12 items-center justify-center overflow-hidden rounded-full px-6 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-antique focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian",
+    "group relative inline-flex min-h-12 items-center justify-center overflow-hidden whitespace-nowrap rounded-full px-6 py-3 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-antique focus-visible:ring-offset-2 focus-visible:ring-offset-obsidian",
     "disabled:pointer-events-none disabled:opacity-60",
     variant === "primary" && "bg-antique text-obsidian shadow-gold hover:bg-mist",
     variant === "secondary" && "border border-antique/70 text-whitegold hover:bg-antique hover:text-obsidian",

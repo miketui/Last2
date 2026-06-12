@@ -30,7 +30,7 @@ export default function HomePage() {
         </div>
       </Section>
 
-      <Section eyebrow="Relief / authority path" title="A four-part path from creative identity to sustainable rhythm.">
+      <Section eyebrow="The path forward" title="A four-part path from creative identity to sustainable rhythm.">
         <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
           <div className="editorial-panel rounded-[2rem] p-6 md:p-8">
             <p>Curls & Contemplation turns scattered lessons into a calmer sequence: define the standard, shape the client experience, understand the business rhythm, and protect the reflective space that keeps the work honest.</p>
@@ -44,7 +44,7 @@ export default function HomePage() {
               <MagneticCurlButton href="/book" variant="secondary">Explore the Book</MagneticCurlButton>
             </div>
           </div>
-          <ChapterPathway />
+          <ChapterPathway compact />
         </div>
       </Section>
     </main>

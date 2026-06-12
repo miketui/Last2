@@ -8,7 +8,7 @@ export function BookMockup() {
         <div aria-hidden="true" className="absolute -bottom-12 -right-10 h-40 w-40 rounded-full border border-mist/20" />
         <div className="relative flex h-full flex-col rounded-r-[1.4rem] border border-whitegold/20 p-5">
           <p className="editorial-kicker">Curls</p>
-          <h2 className="mt-8 font-display text-4xl leading-none text-white sm:text-5xl">Curls & Contemplation</h2>
+          <h2 className="mt-8 font-display text-3xl leading-[1.04] text-white sm:text-4xl">Curls &amp;<br />Contemplation</h2>
           <p className="mt-5 max-w-36 text-sm leading-5 text-whitegold/75">A Freelance Hairstylist&apos;s Guide to Creative Excellence</p>
           <p className="mt-auto text-sm font-semibold uppercase tracking-[0.18em] text-antique">Michael David</p>
         </div>

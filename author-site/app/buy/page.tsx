@@ -1,7 +1,7 @@
 import { pageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/design/PageHero";
 import { Section } from "@/components/design/Section";
-import { PricingCard } from "@/components/PricingCard";
+import { PurchaseSummary } from "@/components/PurchaseSummary";
 import { PreorderCheckout } from "@/components/PreorderCheckout";
 import { priceConfig } from "@/content/book";
 import { getLaunchMode } from "@/lib/env";
@@ -40,7 +40,7 @@ export default function Page() {
             }
             sourcePage="/buy"
           />
-          <PricingCard showCta={false} />
+          <PurchaseSummary />
         </div>
       </Section>
     </main>

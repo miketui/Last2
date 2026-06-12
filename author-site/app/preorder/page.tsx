@@ -1,7 +1,7 @@
 import { pageMetadata } from "@/lib/seo";
 import { PageHero } from "@/components/design/PageHero";
 import { Section } from "@/components/design/Section";
-import { PricingCard } from "@/components/PricingCard";
+import { PurchaseSummary } from "@/components/PurchaseSummary";
 import { PreorderCheckout } from "@/components/PreorderCheckout";
 import { priceConfig } from "@/content/book";
 
@@ -28,7 +28,7 @@ export default function Page() {
       <Section eyebrow="Checkout" title="What happens after you pay." id="checkout">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
           <PreorderCheckout />
-          <PricingCard showCta={false} />
+          <PurchaseSummary />
         </div>
       </Section>
     </main>

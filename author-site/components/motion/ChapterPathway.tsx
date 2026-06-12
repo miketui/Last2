@@ -5,8 +5,8 @@ const partLabels = ["Identity", "Experience", "Business", "Sustainability"] as c
 
 export function ChapterPathway({ compact = false }: { compact?: boolean }) {
   return (
-    <ol aria-label="Four-part chapter pathway" className="relative grid gap-4 md:grid-cols-4">
-      <span aria-hidden="true" className="absolute left-6 right-6 top-10 hidden h-px bg-gradient-to-r from-antique/20 via-mist/40 to-antique/20 md:block" />
+    <ol aria-label="Four-part chapter pathway" className={`relative grid gap-4 ${compact ? "sm:grid-cols-2" : "md:grid-cols-4"}`}>
+      {!compact && <span aria-hidden="true" className="absolute left-6 right-6 top-10 hidden h-px bg-gradient-to-r from-antique/20 via-mist/40 to-antique/20 md:block" />}
       {chapters.map((chapter, index) => (
         <li key={chapter.slug} className="relative">
           <Link
@@ -15,7 +15,7 @@ export function ChapterPathway({ compact = false }: { compact?: boolean }) {
           >
             <span className="flex h-11 w-11 items-center justify-center rounded-full border border-antique/50 bg-obsidian text-sm font-semibold text-antique">{index + 1}</span>
             <p className="mt-5 text-xs uppercase tracking-[0.24em] text-mist/80">Part {index + 1} · {partLabels[index]}</p>
-            <h3 className="mt-2 font-display text-2xl text-white md:text-3xl">{chapter.title}</h3>
+            <h3 className={`mt-2 font-display text-2xl text-white ${compact ? "" : "md:text-3xl"}`}>{chapter.title}</h3>
             {!compact && <p className="mt-3 text-sm leading-6 text-whitegold/75">{chapter.excerpt}</p>}
           </Link>
         </li>

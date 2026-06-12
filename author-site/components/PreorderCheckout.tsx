@@ -65,7 +65,7 @@ export function PreorderCheckout({
         <input type="checkbox" name="card-deck" className="mt-1 h-5 w-5 accent-[#B08D57]" />
         <span>
           <span className="block font-semibold text-white">Add the Affirmation Card Deck — $7.99</span>
-          <span className="mt-1 block text-sm leading-6 text-whitegold/70">~30 print-at-home cards plus phone wallpapers, drawn from the book&rsquo;s affirmations. Delivered alongside your edition.</span>
+          <span className="mt-1 block text-sm leading-6 text-whitegold/70">30 print-at-home cards plus phone wallpapers, drawn from the book&rsquo;s affirmations. Delivered alongside your edition.</span>
         </span>
       </label>
 

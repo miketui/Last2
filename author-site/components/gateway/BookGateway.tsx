@@ -454,7 +454,7 @@ export function BookGateway() {
                 Open your mind
               </span>
             </button>
-            <small>Click to enter the landing page</small>
+            <small>Click to step inside</small>
           </div>
         </section>
 
