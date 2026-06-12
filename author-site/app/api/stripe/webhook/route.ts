@@ -32,9 +32,18 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) 
     metadata: session.metadata ?? {}
   }, { onConflict: "stripe_checkout_session_id" }).select("id").single();
   if (order?.id) {
-    await supabase.from("purchases").upsert({ order_id: order.id, email, book_slug: "curls-and-contemplation", status: "active", entitlement_status: "active" }, { onConflict: "order_id,book_slug" });
+    const bookRow = { order_id: order.id, email, book_slug: "curls-and-contemplation", status: "active", entitlement_status: "active" };
+    const { error: bookError } = await supabase.from("purchases").upsert(bookRow, { onConflict: "order_id,book_slug" });
+    if (bookError) {
+      // Migration 0002 not applied yet: fall back to the legacy unique(order_id)
+      // key so the buyer's book entitlement is never lost.
+      await supabase.from("purchases").upsert(bookRow, { onConflict: "order_id" });
+    }
     if (session.metadata?.card_deck === "true") {
-      await supabase.from("purchases").upsert({ order_id: order.id, email, book_slug: "affirmation-deck", status: "active", entitlement_status: "active" }, { onConflict: "order_id,book_slug" });
+      const { error: deckError } = await supabase.from("purchases").upsert({ order_id: order.id, email, book_slug: "affirmation-deck", status: "active", entitlement_status: "active" }, { onConflict: "order_id,book_slug" });
+      if (deckError) {
+        await recordServerEvent({ eventName: analyticsEvents.purchaseRecorded, route: "/api/stripe/webhook", metadata: { checkoutSessionId: session.id, deckEntitlementFailed: true, hint: "apply migration 0002_order_bump.sql" }, operational: true });
+      }
     }
   }
   if (email) {
