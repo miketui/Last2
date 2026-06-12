@@ -650,7 +650,8 @@
 #book-gateway.is-entered .gw-inside-message { display: none; }
 
 @media (max-width: 900px) {
-  .gw-copy { left: 1.2rem; right: 1.2rem; top: 1.5rem; text-align: center; margin-inline: auto; }
+  /* top clears the fixed Skip-intro pill so the kicker never collides with it */
+  .gw-copy { left: 1.2rem; right: 1.2rem; top: 3.8rem; text-align: center; margin-inline: auto; }
   .gw-title { font-size: clamp(2rem, 13vw, 3.6rem); }
   .gw-book-stage { width: clamp(175px, 45vw, 260px); }
   .gw-action { top: calc(50% + min(25vh, 215px)); }
