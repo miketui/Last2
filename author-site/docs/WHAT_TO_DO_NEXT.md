@@ -118,7 +118,7 @@ Preview. Anything prefixed `NEXT_PUBLIC_` is exposed to the browser — never pu
 1. Create a Supabase project; copy URL + anon key + service-role key into `.env.local`.
 2. Apply the migration:
    ```bash
-   supabase db push --include-all
+   supabase db push
    # or paste supabase/migrations/0001_author_commerce.sql into the SQL editor
    ```
 3. Create **two** storage buckets:
@@ -151,7 +151,7 @@ live (quiz/challenge are staged + noindex today).
    `checkout.session.expired`, `charge.refunded`; paste `STRIPE_WEBHOOK_SECRET`.
 4. Test end to end:
    ```bash
-   stripe listen --forward-to localhost:3000/api/stripe/webhook
+   stripe listen --forward-to http://localhost:3000/api/stripe/webhook
    stripe trigger checkout.session.completed
    stripe trigger charge.refunded
    pnpm check:stripe-test
