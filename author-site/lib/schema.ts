@@ -14,11 +14,19 @@ export function personJsonLd() {
   };
 }
 
+/** The real tier-flip date: launch price holds through RELEASE_DATE + 15 days. */
+export function tierFlipDate() {
+  const release = new Date(`${siteConfig.releaseDate}T00:00:00Z`);
+  release.setUTCDate(release.getUTCDate() + 15);
+  return release.toISOString().slice(0, 10);
+}
+
 export function bookJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Book",
     name: book.title,
+    image: absoluteUrl("/og-default.png"),
     alternateName: `${book.title}: ${book.subtitle}`,
     author: { "@type": "Person", name: book.author, url: absoluteUrl("/about") },
     description: book.description,
@@ -32,6 +40,7 @@ export function bookJsonLd() {
       "@type": "Offer",
       price: priceConfig.preorderDirect.amount.toFixed(2),
       priceCurrency: "USD",
+      priceValidUntil: tierFlipDate(),
       availability: "https://schema.org/PreOrder",
       url: absoluteUrl("/preorder")
     }
@@ -44,11 +53,13 @@ export function productJsonLd() {
     "@type": "Product",
     name: `${book.title} — Direct Digital Edition`,
     description: book.description,
+    image: absoluteUrl("/og-default.png"),
     brand: { "@type": "Brand", name: siteConfig.name },
     offers: {
       "@type": "Offer",
       price: priceConfig.preorderDirect.amount.toFixed(2),
       priceCurrency: "USD",
+      priceValidUntil: tierFlipDate(),
       availability: "https://schema.org/PreOrder",
       url: absoluteUrl("/buy")
     }

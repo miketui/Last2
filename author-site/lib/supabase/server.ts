@@ -31,9 +31,14 @@ export function createServerSupabaseClient(useServiceRole = false): SupabaseClie
 
 export async function getSessionUser(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
-  const email = cookieStore.get("cc_demo_email")?.value;
-  const userId = cookieStore.get("cc_demo_user")?.value;
-  if (email && userId) return { id: userId, email };
+  // Demo-session cookies are a sandbox convenience only. They are unsigned and
+  // spoofable, so they are honored ONLY behind an explicit owner opt-in that
+  // must never be set in production (entitlement + admin checks key on email).
+  if (process.env.ALLOW_DEMO_SESSION === "1") {
+    const email = cookieStore.get("cc_demo_email")?.value;
+    const userId = cookieStore.get("cc_demo_user")?.value;
+    if (email && userId) return { id: userId, email };
+  }
   const supabase = createServerSupabaseClient(false);
   if (!supabase) return null;
   const { data } = await supabase.auth.getUser();

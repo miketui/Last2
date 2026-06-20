@@ -32,7 +32,19 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) 
     metadata: session.metadata ?? {}
   }, { onConflict: "stripe_checkout_session_id" }).select("id").single();
   if (order?.id) {
-    await supabase.from("purchases").upsert({ order_id: order.id, email, book_slug: "curls-and-contemplation", status: "active", entitlement_status: "active" }, { onConflict: "order_id" });
+    const bookRow = { order_id: order.id, email, book_slug: "curls-and-contemplation", status: "active", entitlement_status: "active" };
+    const { error: bookError } = await supabase.from("purchases").upsert(bookRow, { onConflict: "order_id,book_slug" });
+    if (bookError) {
+      // Migration 0002 not applied yet: fall back to the legacy unique(order_id)
+      // key so the buyer's book entitlement is never lost.
+      await supabase.from("purchases").upsert(bookRow, { onConflict: "order_id" });
+    }
+    if (session.metadata?.card_deck === "true") {
+      const { error: deckError } = await supabase.from("purchases").upsert({ order_id: order.id, email, book_slug: "affirmation-deck", status: "active", entitlement_status: "active" }, { onConflict: "order_id,book_slug" });
+      if (deckError) {
+        await recordServerEvent({ eventName: analyticsEvents.purchaseRecorded, route: "/api/stripe/webhook", metadata: { checkoutSessionId: session.id, deckEntitlementFailed: true, hint: "apply migration 0002_order_bump.sql" }, operational: true });
+      }
+    }
   }
   if (email) {
     await supabase.from("subscriber_events").insert({ email, event_type: "customer_created_from_checkout", provider: "stripe", metadata: { checkout_session_id: session.id } });
@@ -50,6 +62,7 @@ export async function revokeEntitlementForRefund(charge: Stripe.Charge) {
   const supabase = createServerSupabaseClient(true);
   if (!supabase) return { ok: false as const, skipped: true as const, reason: "config_missing" as const };
   const { data: order } = await supabase.from("orders").select("id,email").eq("stripe_payment_intent_id", paymentIntent ?? "").maybeSingle();
+  // Revokes every entitlement on the order (book and any order-bump deck).
   if (order?.id) await supabase.from("purchases").update({ status: "refunded", entitlement_status: "revoked", refunded_at: new Date().toISOString(), revoked_at: new Date().toISOString() }).eq("order_id", order.id);
   const notifyEmail = email ?? order?.email;
   if (notifyEmail) {
@@ -90,9 +103,15 @@ export async function POST(request: Request) {
     case "charge.refunded":
       await revokeEntitlementForRefund(event.data.object as Stripe.Charge);
       break;
-    case "checkout.session.expired":
+    case "checkout.session.expired": {
+      // Funnel 1: one compliant abandoned-checkout reminder is sent from
+      // MailerLite (+24h automation, owner-gated); here we only tag the group.
+      const expired = event.data.object as Stripe.Checkout.Session;
+      const abandonedEmail = expired.customer_details?.email ?? expired.customer_email ?? undefined;
+      if (abandonedEmail) await upsertSubscriber(abandonedEmail, "abandoned_checkout", { source: "stripe_checkout_expired" });
       await recordServerEvent({ eventName: analyticsEvents.paymentFailed, route: "/api/stripe/webhook", metadata: { stripeEventId: event.id, expired: true }, operational: true });
       break;
+    }
     case "customer.subscription.created":
     case "customer.subscription.updated":
     case "customer.subscription.deleted":

@@ -4,7 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ConsentBanner } from "@/components/ConsentBanner";
-import { CurlCursorTrail } from "@/components/motion/CurlCursorTrail";
+import { SiteCurlTrail } from "@/components/SiteCurlTrail";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { ReducedMotionProvider } from "@/components/motion/ReducedMotionProvider";
 import { siteConfig } from "@/content/site";
@@ -23,11 +23,12 @@ export const metadata: Metadata = {
     description: "A premium author-commerce site for Curls & Contemplation.",
     siteName: siteConfig.name,
     url: siteConfig.siteUrl,
-    type: "website"
+    type: "website",
+    images: [{ url: "/og-default.png", alt: `${siteConfig.name} by ${siteConfig.author}` }]
   },
-  twitter: { card: "summary_large_image", title: siteConfig.name }
+  twitter: { card: "summary_large_image", title: siteConfig.name, images: ["/og-default.png"] }
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
-  return <html lang="en"><body><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd()) }} /><ReducedMotionProvider><Header /><PageTransition>{children}</PageTransition><Footer /><ConsentBanner /><CurlCursorTrail /></ReducedMotionProvider></body></html>;
+  return <html lang="en"><body><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd()) }} /><ReducedMotionProvider><Header /><PageTransition>{children}</PageTransition><Footer /><ConsentBanner /><SiteCurlTrail /></ReducedMotionProvider></body></html>;
 }

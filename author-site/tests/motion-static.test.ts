@@ -19,11 +19,13 @@ describe("immersive motion safety", () => {
     expect(shouldDisableCurlTrail("/book", false)).toBe(false);
   });
 
-  it("curl cursor uses pointer-events none and a fine pointer gate", () => {
-    const source = readFileSync(join(process.cwd(), "components/motion/CurlCursorTrail.tsx"), "utf8");
-    expect(source).toContain("pointer-events-none");
+  it("curl trail uses a non-interactive overlay, fine pointer gate and reduced-motion gate", () => {
+    const source = readFileSync(join(process.cwd(), "components/CurlTrail.tsx"), "utf8");
+    expect(source).toContain('pointerEvents: "none"');
     expect(source).toContain("(hover: hover) and (pointer: fine)");
+    expect(source).toContain("(prefers-reduced-motion: reduce)");
     expect(source).toContain("requestAnimationFrame");
+    expect(source).toContain("createElementNS");
   });
 
   it("magnetic CTA includes focus-visible and reduced-motion fallback", () => {

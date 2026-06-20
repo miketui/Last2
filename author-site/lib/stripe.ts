@@ -25,11 +25,18 @@ export function resolveServerPriceId(mode: LaunchMode, product: CheckoutProduct)
   return { ok: true as const, priceId: productPrice ?? fallback, tier: (mode === "launched" ? "regular" : "preorder") as PriceTier };
 }
 
+/** $7.99 Affirmation Card Deck order bump — only offered when its price ID is configured. */
+export function resolveCardDeckPriceId(): string | undefined {
+  const config = getStripeConfig();
+  return config.ok ? config.value.cardDeckPriceId : undefined;
+}
+
 export function buildCheckoutMetadata(input: {
   product: CheckoutProduct;
   sourcePage?: string;
   utm?: Partial<Record<"utm_source" | "utm_medium" | "utm_campaign", string>>;
   customerEmail?: string;
+  cardDeck?: boolean;
 }) {
   const launchMode = getLaunchMode();
   return {
@@ -37,6 +44,7 @@ export function buildCheckoutMetadata(input: {
     launch_mode: launchMode,
     price_tier: launchMode === "launched" ? "regular" : "preorder",
     product: input.product,
+    card_deck: input.cardDeck ? "true" : "false",
     source_page: input.sourcePage ?? "unknown",
     utm_source: input.utm?.utm_source ?? "",
     utm_medium: input.utm?.utm_medium ?? "",

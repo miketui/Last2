@@ -1,0 +1,10 @@
+# Example Codex local config notes.
+# Review against your current Codex settings before using.
+
+[project]
+instructions_file = "AGENTS.md"
+
+[workflow]
+preflight = "bash scripts/harness-preflight.sh"
+validate = "bash scripts/harness-validate.sh"
+report = "bash scripts/harness-report.sh"
