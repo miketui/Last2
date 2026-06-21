@@ -3,6 +3,8 @@ export const siteConfig = {
   author: "Michael David",
   legalAuthor: "Michael David Warren Jr.",
   subtitle: "A Freelance Hairstylist's Guide to Creative Excellence",
+  description:
+    "Your craft is not the problem — the missing business map is. Pricing, networking, on-set etiquette, and leadership for freelance hairstylists.",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
   supportEmail: process.env.SUPPORT_EMAIL ?? "support@example.com",
   releaseDate: process.env.RELEASE_DATE ?? "2026-06-10",

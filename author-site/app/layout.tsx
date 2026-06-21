@@ -15,12 +15,12 @@ export const metadata: Metadata = {
     default: siteConfig.name,
     template: `%s | ${siteConfig.name}`
   },
-  description: "Your craft is not the problem — the missing business map is. Pricing, networking, on-set etiquette, and leadership for freelance hairstylists.",
+  description: siteConfig.description,
   metadataBase: new URL(siteConfig.siteUrl),
   alternates: { canonical: siteConfig.siteUrl },
   openGraph: {
     title: siteConfig.name,
-    description: "Your craft is not the problem — the missing business map is. Pricing, networking, on-set etiquette, and leadership for freelance hairstylists.",
+    description: siteConfig.description,
     siteName: siteConfig.name,
     url: siteConfig.siteUrl,
     type: "website",
