@@ -6,6 +6,13 @@ import { EditorialGrid } from "@/components/design/EditorialGrid";
 import { ChapterPathway } from "@/components/motion/ChapterPathway";
 import { MagneticCurlButton } from "@/components/motion/MagneticCurlButton";
 import { bookJsonLd } from "@/lib/schema";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata = pageMetadata(
+  "Freelance Hairstylist's Guide to Creative Excellence",
+  "Your craft is not the problem — the missing business map is. Pricing, networking, on-set etiquette, and leadership for freelance hairstylists.",
+  { path: "/" }
+);
 
 const problemCards = [
   ["Pricing", "You can create beautiful work and still hesitate when it is time to name the number."],

@@ -15,12 +15,12 @@ export const metadata: Metadata = {
     default: siteConfig.name,
     template: `%s | ${siteConfig.name}`
   },
-  description: "Author-commerce scaffold for Michael David's Curls & Contemplation.",
+  description: "Your craft is not the problem — the missing business map is. Pricing, networking, on-set etiquette, and leadership for freelance hairstylists.",
   metadataBase: new URL(siteConfig.siteUrl),
   alternates: { canonical: siteConfig.siteUrl },
   openGraph: {
     title: siteConfig.name,
-    description: "A premium author-commerce site for Curls & Contemplation.",
+    description: "Your craft is not the problem — the missing business map is. Pricing, networking, on-set etiquette, and leadership for freelance hairstylists.",
     siteName: siteConfig.name,
     url: siteConfig.siteUrl,
     type: "website",
