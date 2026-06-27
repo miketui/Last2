@@ -1618,3 +1618,13 @@ p {
   break-inside: avoid;
   page-break-inside: avoid;
 }
+
+/* ====================================================================
+   QA FIX (post-v8): Quiz Key answer table must flow — never clip.
+   The 16-row table overflowed .key-container (max-height:8.11in;overflow:hidden)
+   and dropped chapters XV-XVI from the printed PDF. Let it flow to a 2nd page.
+   ==================================================================== */
+.key-container {
+  overflow: visible !important;
+  max-height: none !important;
+}
