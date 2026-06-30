@@ -125,7 +125,7 @@ on the unauthenticated mutating routes before launch.
 
 ### F3 — PostgREST `.or()` filters interpolate session values as strings (LOW)
 `lib/entitlements.ts:35` and `lib/supabase/server.ts:53` build PostgREST filters via template
-strings: `.or(\`user_id.eq.${id},email.eq.${email}\`)`. The values come from a validated Supabase
+strings: ``.or(`user_id.eq.${id},email.eq.${email}`)``. The values come from a validated Supabase
 session (and the entitlement query is additionally scoped by `book_slug`), so exploitability is
 low — but an email containing PostgREST filter metacharacters (e.g. a comma) could alter the
 filter shape. **Fix (defensive):** prefer structured `.or()` with explicit `.eq()` chaining or
