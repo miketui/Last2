@@ -31,6 +31,13 @@ describe("Prompt 5 static security checks", () => {
     expect(source).toContain("stripe-signature");
   });
 
+  it("bonus claim API verifies Turnstile before provider side effects", () => {
+    const source = readFileSync(join(process.cwd(), "app/api/bonus-claim/route.ts"), "utf8");
+    expect(source).toContain("verifyTurnstileToken");
+    expect(source.indexOf("const turnstile = await verifyTurnstileToken")).toBeLessThan(source.indexOf("const mailerlite = await upsertSubscriber"));
+    expect(source).toContain("turnstile_failed");
+  });
+
   it("service role key stays out of client components", () => {
     const files = walk(process.cwd()).filter((file) => /\.(tsx|ts)$/.test(file));
     const clientOffenders = files.filter((file) => readFileSync(file, "utf8").startsWith('"use client"') && readFileSync(file, "utf8").includes("SUPABASE_SERVICE_ROLE_KEY"));
