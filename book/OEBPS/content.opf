@@ -18,7 +18,7 @@
 
     <!-- Language and Publisher -->
     <dc:language>en</dc:language>
-    <dc:publisher>TAYLKOMB LLC</dc:publisher>
+    <dc:publisher>Michael David</dc:publisher>
     <dc:date>2026-03-27</dc:date>
 
     <!-- Description -->
@@ -38,10 +38,9 @@
     <dc:rights>Copyright &#169; 2026 Michael David. All rights reserved. No part of this publication may be reproduced, distributed, or transmitted in any form or by any means without prior written permission from the author or publisher.</dc:rights>
 
     <!-- Timestamps -->
-    <meta property="dcterms:modified">2026-06-10T04:12:45Z</meta>
+    <meta property="dcterms:modified">2026-07-02T18:20:00Z</meta>
 
     <!-- Cover image reference (EPUB2 compatibility) -->
-    <meta name="cover" content="cover-image"/>
 
     <!-- Accessibility (EPUB Accessibility 1.1 / Schema.org) -->
     <meta property="schema:accessMode">textual</meta>
@@ -64,7 +63,6 @@
 
   <manifest>
     <!-- Cover image -->
-    <item id="cover-image" href="images/cover.png" media-type="image/png" properties="cover-image"/>
 
     <!-- Navigation document (EPUB3) -->
     <item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>
@@ -75,10 +73,8 @@
     <!-- Stylesheets -->
     <item id="style-main"           href="style/style.css"                    media-type="text/css"/>
     <item id="style-fonts"          href="style/fonts.css"                    media-type="text/css"/>
-    <item id="style-print"          href="style/print.css"                    media-type="text/css"/>
 
     <!-- Fonts -->
-    <item id="font-cinzel"             href="fonts/CinzelDecorative.woff2"        media-type="font/woff2"/>
     <item id="font-montserrat-bold"    href="fonts/Montserrat-Bold.woff2"         media-type="font/woff2"/>
     <item id="font-montserrat-regular" href="fonts/Montserrat-Regular.woff2"      media-type="font/woff2"/>
     <item id="font-libre-bold"         href="fonts/librebaskerville-bold.woff2"   media-type="font/woff2"/>
@@ -113,7 +109,6 @@
     <item id="worksheet-fallback"      href="xhtml/worksheet-download-fallback.xhtml" media-type="application/xhtml+xml"/>
 
     <!-- Front Matter -->
-    <item id="cover-page"        href="xhtml/0-Cover.xhtml"            media-type="application/xhtml+xml"/>
     <item id="halftitle"         href="xhtml/0a-HalfTitle.xhtml"       media-type="application/xhtml+xml"/>
     <item id="titlepage"         href="xhtml/1-TitlePage.xhtml"        media-type="application/xhtml+xml"/>
     <item id="copyright"         href="xhtml/2-Copyright.xhtml"        media-type="application/xhtml+xml"/>
@@ -173,7 +168,6 @@
   </manifest>
 
   <spine toc="ncx">
-    <itemref idref="cover-page"          linear="yes"/>
     <itemref idref="halftitle"           linear="yes"/>
     <itemref idref="titlepage"           linear="yes"/>
     <itemref idref="copyright"           linear="yes"/>
@@ -224,7 +218,6 @@
   </spine>
 
   <guide>
-    <reference type="cover"        title="Cover"             href="xhtml/0-Cover.xhtml"/>
     <reference type="title-page"   title="Title Page"        href="xhtml/1-TitlePage.xhtml"/>
     <reference type="toc"          title="Table of Contents" href="xhtml/3-TableOfContents.xhtml"/>
     <reference type="text"         title="Begin Reading"     href="xhtml/7-Preface.xhtml"/>
