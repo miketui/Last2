@@ -3,7 +3,7 @@
   Complete Stylesheet with All Corrections
   
   Colors: Teal (#008080), Gold (#D4AF37), Jade (#00A86B)
-  Fonts: Libre Baskerville (Body), Cinzel Decorative (Display), Montserrat (Headers/UI)
+  Fonts: Libre Baskerville (Body), Libre Baskerville Bold (Display), Montserrat (Headers/UI)
   
   Version: 3.0 - Production Ready
 */
@@ -39,7 +39,7 @@
   --clr-muted: #888888;
 
   /* Typography */
-  --font-display: 'Cinzel Decorative', Georgia, serif;
+  --font-display: 'Libre Baskerville', Georgia, serif;
   --font-body: 'Libre Baskerville', Georgia, serif;
   --font-sans: 'Montserrat', Arial, sans-serif;
 
@@ -1184,17 +1184,18 @@ figcaption {
   h1.frontmatter-title, h1.main-title {
     font-size: 2.5rem;
   }
-  
+
   h1.part-title {
     font-size: 2rem;
   }
-  
+
   .title-line {
     font-size: 1.5rem;
   }
 }
 
 @media (max-width: 600px) {
+
   .chapter-number-figure {
     width: 140px;
     height: 90px;
@@ -1299,7 +1300,7 @@ body.title-page-body .bottom-left {
 
 body.title-page-body h1.main-title {
   font-family: var(--font-display);
-  font-size: 4.5rem;
+  font-size: 4rem;
   line-height: 1;
   color: var(--clr-teal-dark);
   margin: 0 0 1.5rem 0;
@@ -1327,6 +1328,28 @@ body.title-page-body .author-name {
   color: #555;
   margin-top: auto;
   margin-bottom: 4rem;
+}
+
+/* Responsive title scaling — must follow the base rule above so the
+   equal-specificity media overrides win in the cascade */
+@media (max-width: 768px) {
+  body.title-page-body h1.main-title {
+    font-size: 2.75rem;
+  }
+}
+
+@media (max-width: 600px) {
+  h1.frontmatter-title, h1.main-title,
+  body.title-page-body h1.main-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 360px) {
+  h1.frontmatter-title, h1.main-title,
+  body.title-page-body h1.main-title {
+    font-size: 1.6rem;
+  }
 }
 
 /* Copyright Page Body */
@@ -3036,3 +3059,69 @@ section.image-quote .quote-figure img {
   object-fit: contain;
 }
 
+
+/* ====================================================================
+   v9 STANDARDIZATION — CONSISTENT CHAPTER TITLE PAGES
+   Scale the one-word-per-line title by line-count so titles of 1–8 lines
+   render to a comparable block height. This makes every opener follow the
+   Chapter III balance (medallion → title → scripture → Introduction → body
+   on the opener page) instead of long titles overflowing to a 2nd page.
+   ==================================================================== */
+.title-lines .title-line { line-height: 1.18; }
+.title-lines.tl-1 .title-line,
+.title-lines.tl-2 .title-line,
+.title-lines.tl-3 .title-line { font-size: 1.85rem; }
+.title-lines.tl-4 .title-line { font-size: 1.64rem; }
+.title-lines.tl-5 .title-line { font-size: 1.44rem; }
+.title-lines.tl-6 .title-line { font-size: 1.26rem; letter-spacing: 0.12em; }
+.title-lines.tl-7 .title-line { font-size: 1.12rem; letter-spacing: 0.10em; }
+.title-lines.tl-8 .title-line { font-size: 1.00rem; letter-spacing: 0.08em; }
+.title-lines.tl-6, .title-lines.tl-7, .title-lines.tl-8 { gap: 0.03rem; }
+
+
+/* ====================================================================
+   v9 STANDARDIZATION — SINGLE-PAGE INTERACTIVE PAGES
+   Each chapter quiz and worksheet starts on its own page and is held
+   together; image-quote pages already isolate. No clipping: if content is
+   genuinely taller than a page it flows cleanly (verified per page).
+   ==================================================================== */
+.quiz-container.chap-quiz,
+section.worksheet {
+  break-before: page;  page-break-before: always;
+}
+
+/* ====================================================================
+   v9 STANDARDIZATION — SINGLE-PAGE CHAPTER QUIZ (print only)
+   The base .mcq-item uses 2rem margin + 2rem padding, which pushes a
+   4-question quiz onto a 2nd page for chapters with longer questions.
+   In print, tighten the quiz so all four questions fit on one page.
+   (EPUB keeps the generous reflowable spacing.)
+   ==================================================================== */
+@media print {
+  .quiz-container.chap-quiz { margin: 0.3rem 0; }
+  .quiz-header { margin-bottom: 0.4rem; }
+  .quiz-title { font-size: 1.1rem; }
+  .quiz-instructions { font-size: 0.82rem; margin: 0.08rem 0 0; }
+  .mcq-list { margin: 0; }
+  .mcq-item {
+    margin-bottom: 0.42rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 6px;
+  }
+  .mcq-item::before { margin-bottom: 0.1rem; font-size: 0.9rem; }
+  .question-text { font-size: 0.89rem; margin: 0; line-height: 1.3; }
+  .mcq-options { margin: 0.16rem 0 0 0; padding-left: 1.35rem; }
+  .option { margin-bottom: 0.08rem; padding: 0; font-size: 0.87rem; line-height: 1.3; }
+}
+
+/* Actionable Steps: styled label (non-heading) — visually matches former .action-steps h2 */
+.actionable-label {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--clr-teal-dark);
+  margin-top: 0;
+  margin-bottom: var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}

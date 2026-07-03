@@ -37,23 +37,6 @@
 }
 
 @font-face {
-  font-family: 'Cinzel Decorative';
-  src: url('../fonts/CinzelDecorative.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-/* Cinzel Decorative Bold fallback: regular file used so bold display runs stay in
-   the brand decorative face rather than falling back to a generic serif. */
-@font-face {
-  font-family: 'Cinzel Decorative';
-  src: url('../fonts/CinzelDecorative.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
   font-family: 'Montserrat';
   src: url('../fonts/Montserrat-Regular.woff2') format('woff2');
   font-weight: 400;
@@ -149,8 +132,8 @@ body, p, li, dd, dt {
 
 /* Headings & Display Text */
 h1, .frontmatter-title, .main-title, .key-title, .bib-title, .dedication-heading {
-  font-family: 'Cinzel Decorative', Georgia, serif;
-  font-weight: 400;
+  font-family: 'Libre Baskerville', Georgia, serif;
+  font-weight: 700;
 }
 
 h2, h3, h4, h5, h6, .subtitle, .section-heading {

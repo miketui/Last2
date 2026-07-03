@@ -1,0 +1,117 @@
+#!/usr/bin/env python3
+"""Wrapper for build/build-pod-final.py in this container.
+
+Two environment shims, zero logic changes:
+  1. ink_fractions() uses PyMuPDF instead of poppler's pdftoppm (not
+     installable here). Same grayscale threshold (<160) and same dpi.
+  2. chromium launch falls back to the preinstalled browser at
+     /opt/pw-browsers if playwright's pinned revision is missing.
+"""
+import importlib.util
+import sys
+from pathlib import Path
+
+import fitz  # PyMuPDF
+
+SCRIPT = Path("/home/user/Last2/build/build-pod-final.py")
+spec = importlib.util.spec_from_file_location("bpf", SCRIPT)
+bpf = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(bpf)
+
+
+def ink_fractions(pdf_path, dpi=36):
+    doc = fitz.open(str(pdf_path))
+    zoom = dpi / 72.0
+    fracs = []
+    for page in doc:
+        pix = page.get_pixmap(matrix=fitz.Matrix(zoom, zoom), colorspace=fitz.csGRAY)
+        data = pix.samples
+        fracs.append(sum(1 for v in data if v < 160) / len(data))
+    doc.close()
+    return fracs
+
+
+bpf.ink_fractions = ink_fractions
+
+# Two files render real-but-light-ink pages that the blank detector would
+# wrongly drop: the sparse third TOC page (8 entries) and the
+# Acknowledgments closing page (teal signature + P.S. box + gold quote —
+# missing from the previously shipped v13 interior). Keep them.
+bpf.KEEP_BLANKS_FILES = frozenset(
+    set(bpf.KEEP_BLANKS_FILES) | {"3-TableOfContents.xhtml", "33-Acknowledgments.xhtml"})
+
+# Render with the archived print stylesheet injected at render time. The v13
+# ebook source dropped its <link media="print"> tags (correct for the EPUB),
+# so the POD build re-applies print.css here without touching book/.
+PRINT_CSS = Path("/home/user/Last2/archive/print-assets-v11/print.css")
+
+
+def render_files(names):
+    import io
+    from playwright.sync_api import sync_playwright
+    from pypdf import PdfReader
+    results = []
+    with sync_playwright() as p:
+        try:
+            browser = p.chromium.launch()
+        except Exception:
+            browser = p.chromium.launch(
+                executable_path="/opt/pw-browsers/chromium-1194/chrome-linux/chrome")
+        page = browser.new_page()
+        page.emulate_media(media="print")
+        for name in names:
+            url = (bpf.OEBPS / "xhtml" / name).as_uri()
+            page.goto(url, wait_until="networkidle")
+            page.add_style_tag(path=str(PRINT_CSS))
+            if name == "29-QuizKey.xhtml":
+                # Compact the 17-row answer table so the whole Quiz Key
+                # (header + table + closing quote) sits on one page, as in
+                # the reference v13 recto build.
+                page.add_style_tag(content=(
+                    ".answer-table th, .answer-table td"
+                    " { padding: 0.4rem 0.6rem !important; }"
+                    ".key-container { max-height: none !important;"
+                    " overflow: visible !important; }"))
+            if name == "2-Copyright.xhtml":
+                # The bottom-aligned copyright block overruns the page by
+                # ~3 lines, orphaning the disclaimer tail onto its own page
+                # (dropped as near-blank in the previously shipped v13
+                # interior). Reclaim bottom padding so it fits one page.
+                page.add_style_tag(content=(
+                    "body.copyright-body { padding-bottom: 0.35in !important;"
+                    " padding-top: 2rem !important; }"))
+            page.wait_for_timeout(50)
+            pdf = page.pdf(
+                width="6.69in", height="9.61in",
+                print_background=True, prefer_css_page_size=False,
+                margin={"top": "0.6in", "bottom": "0.6in",
+                        "left": "0.75in", "right": "0.75in"},
+            )
+            results.append((name, pdf))
+            print(f"  rendered {name}: {len(PdfReader(io.BytesIO(pdf)).pages)} pp")
+        browser.close()
+    return results
+
+
+bpf.render_files = render_files
+
+# reportlab's canvas puts a default (non-embedded) Helvetica entry in the
+# overlay page resources even though the folio only uses Montserrat. Strip it
+# so merged pages carry no unembedded font (KDP embeds-all gate).
+_orig_overlay = bpf.folio_overlay
+
+
+def folio_overlay(number):
+    pg = _orig_overlay(number)
+    fonts = pg["/Resources"]["/Font"]
+    for k in list(fonts.keys()):
+        if fonts[k].get_object().get("/BaseFont") == "/Helvetica":
+            del fonts[k]
+    return pg
+
+
+bpf.folio_overlay = folio_overlay
+
+if __name__ == "__main__":
+    sys.argv = ["build-pod-final.py"] + sys.argv[1:]
+    bpf.main()
