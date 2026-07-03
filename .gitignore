@@ -1,3 +1,4 @@
 # Local/sandbox secrets
 .env.local
 .env.sandbox
+__pycache__/
