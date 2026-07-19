@@ -266,3 +266,46 @@ The paid files remain outside `author-site/public/`. The author site must delive
 1. Insert purchased ISBNs into the copyright/metadata source, then rebuild and revalidate.
 2. Commission or resize the paperback cover wrap against the final 375-page spine specification.
 3. Complete Kindle device testing in light, dark, and sepia modes.
+
+---
+
+# UPDATE — v14.1 full-content repair (supersedes v14 above)
+
+**Build date:** July 19, 2026 · **Branch:** `agent/full-content-recompile-v14-1`
+
+The v14.1 build is the current repository and author-site delivery source. It preserves the v14 editorial manuscript verbatim while repairing a real backmatter clipping defect, retaining a sparse final biography page, synchronizing all print folios, and adding a source-to-EPUB-to-PDF completeness gate.
+
+## Current deliverables
+
+| File | Description | SHA-256 |
+|---|---|---|
+| `v14.1-full-content/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub` | EPUB 3.3; EPUBCheck 5.3.0 clean; complete frontmatter, Chapters I–XVI, and backmatter | `887a74de5f1051d5f7ca89e83b85342517717e4584da487510a003c084853d70` |
+| `v14.1-full-content/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf` | KDP Royal 6.69 × 9.61 in POD interior; 380 pages; 529/529 font resources embedded | `38f88ba6cd7fbf677636cfd32897079e76d2789d6cc9c9cfb457bbbfbf52973b` |
+| `v14.1-full-content/page-map.json` | Final spine-file-to-page map | See repository artifact |
+| `v14.1-full-content/FULL-CONTENT-INTEGRITY-REPORT.md` | Section-by-section EPUB parity and PDF anchor proof | See repository artifact |
+| `v14.1-full-content/REPAIR-AND-VALIDATION-REPORT.md` | Root cause, changes, validation results, and release boundary | See repository artifact |
+| `v14.1-full-content/PRE-MORTEM.md` | Tiger, Paper Tiger, and Elephant release-risk review | See repository artifact |
+
+## Locked private delivery paths
+
+- EPUB: `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`
+- PDF: `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`
+
+The paid files remain outside `author-site/public/` and must be delivered through entitlement-checked signed URLs or secure server routes.
+
+## Validation summary
+
+- 46 linear spine files: 9 frontmatter, 4 Parts, 16 chapters, and 17 backmatter.
+- 51/51 publication XHTML/XML/OPF/NCX files match the packaged EPUB byte-for-byte.
+- 64 multiple-choice questions and 64 worksheet prompts retained.
+- 36/36 print Table of Contents folios match the final page map.
+- 22/22 required openers land on recto pages.
+- EPUBCheck: zero fatals, errors, warnings, or infos.
+- PDF: 380 pages, unencrypted, 529/529 font resources embedded, zero `pdftotext` warnings, Ghostscript full-file render passed.
+- Author site: 61/61 tests, lint, typecheck, and production build passed.
+
+## Still open before commercial distribution
+
+1. Insert purchased ISBNs into the copyright/metadata source, then rebuild and revalidate.
+2. Recalculate or resize the paperback cover wrap for the final 380-page interior.
+3. Complete Kindle device testing in light, dark, and sepia modes.

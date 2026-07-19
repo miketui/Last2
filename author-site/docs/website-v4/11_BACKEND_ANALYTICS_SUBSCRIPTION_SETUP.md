@@ -45,8 +45,8 @@ membership_events(id uuid primary key, membership_id uuid, event_type text, meta
 Bucket: `curls-deliverables`.
 
 Private object paths:
-- `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`.
-- `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`.
+- `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`.
+- `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`.
 
 Rules:
 - Bucket private.

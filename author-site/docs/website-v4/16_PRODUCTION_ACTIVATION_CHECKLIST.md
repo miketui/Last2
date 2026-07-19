@@ -29,8 +29,8 @@ Production is blocked until every gate below is complete, documented, and approv
 - [ ] Migration applied.
 - [ ] RLS verified with owner/admin/customer/anonymous cases.
 - [ ] Private bucket `curls-deliverables` created with public access disabled.
-- [ ] EPUB uploaded to `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`.
-- [ ] PDF uploaded to `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`.
+- [ ] EPUB uploaded to `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`.
+- [ ] PDF uploaded to `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`.
 - [ ] Signed URL tested for an entitled user.
 - [ ] Unauthorized download denied.
 - [ ] Refunded/revoked download denied.
