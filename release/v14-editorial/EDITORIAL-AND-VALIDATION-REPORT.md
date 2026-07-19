@@ -52,10 +52,11 @@ Artifact: `Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
 - Royal trim: approximately 6.69 × 9.61 inches.
 - Not encrypted.
 - All fonts embedded.
+- Poppler text extraction completed with zero structural or font-resource warnings.
 - 22 title, part, chapter, and conclusion openers land on odd-numbered recto pages.
 - The page map remained stable after Table of Contents folios were injected.
 - Representative title, body, endnote, quiz, worksheet, quote, Quiz Key, and final bibliography pages were rendered and visually inspected with no clipping, overlap, broken glyphs, or truncated text.
-- SHA-256: `a46dcf74c236edd551152250fbfa2d15ee068a647229d335325efdb85d0a653b`
+- SHA-256: `6586b35621cd5af11981e959f70ffad5c588a33d3c34387fc2c37da335abe121`
 
 ## EPUB Validation
 

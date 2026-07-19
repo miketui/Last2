@@ -110,18 +110,26 @@ def render_files(names):
 
 bpf.render_files = render_files
 
-# reportlab's canvas puts a default (non-embedded) Helvetica entry in the
-# overlay page resources even though the folio only uses Montserrat. Strip it
-# so merged pages carry no unembedded font (KDP embeds-all gate).
+# ReportLab's canvas emits an unused startup text state that references its
+# default Helvetica resource before drawing the folio in embedded Montserrat.
+# Alias that resource to Montserrat so the merged PDF has neither an
+# unembedded font nor a dangling font reference during text extraction.
 _orig_overlay = bpf.folio_overlay
 
 
 def folio_overlay(number):
     pg = _orig_overlay(number)
     fonts = pg["/Resources"]["/Font"]
-    for k in list(fonts.keys()):
-        if fonts[k].get_object().get("/BaseFont") == "/Helvetica":
-            del fonts[k]
+    folio_font = next(
+        (ref for ref in fonts.values()
+         if "Montserrat-Regular" in str(ref.get_object().get("/BaseFont", ""))),
+        None,
+    )
+    if folio_font is None:
+        raise RuntimeError("Embedded Montserrat folio font is missing from overlay")
+    for key in list(fonts.keys()):
+        if fonts[key].get_object().get("/BaseFont") == "/Helvetica":
+            fonts[key] = folio_font
     return pg
 
 
