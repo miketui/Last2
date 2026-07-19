@@ -1,19 +1,21 @@
 #!/usr/bin/env python3
-"""Wrapper for build/build-pod-final.py in this container.
+"""Portable wrapper for build/build-pod-final.py.
 
 Two environment shims, zero logic changes:
   1. ink_fractions() uses PyMuPDF instead of poppler's pdftoppm (not
      installable here). Same grayscale threshold (<160) and same dpi.
-  2. chromium launch falls back to the preinstalled browser at
-     /opt/pw-browsers if playwright's pinned revision is missing.
+  2. chromium launch can use POD_CHROMIUM_PATH when Playwright's pinned
+     browser revision is unavailable.
 """
 import importlib.util
+import os
 import sys
 from pathlib import Path
 
 import fitz  # PyMuPDF
 
-SCRIPT = Path("/home/user/Last2/build/build-pod-final.py")
+HERE = Path(__file__).resolve().parent
+SCRIPT = HERE / "build-pod-final.py"
 spec = importlib.util.spec_from_file_location("bpf", SCRIPT)
 bpf = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(bpf)
@@ -43,7 +45,7 @@ bpf.KEEP_BLANKS_FILES = frozenset(
 # Render with the archived print stylesheet injected at render time. The v13
 # ebook source dropped its <link media="print"> tags (correct for the EPUB),
 # so the POD build re-applies print.css here without touching book/.
-PRINT_CSS = Path("/home/user/Last2/archive/print-assets-v11/print.css")
+PRINT_CSS = HERE.parent / "archive" / "print-assets-v11" / "print.css"
 
 
 def render_files(names):
@@ -54,9 +56,17 @@ def render_files(names):
     with sync_playwright() as p:
         try:
             browser = p.chromium.launch()
-        except Exception:
+        except Exception as original_error:
+            browser_path = os.environ.get("POD_CHROMIUM_PATH")
+            if not browser_path:
+                raise RuntimeError(
+                    "Playwright Chromium is unavailable; set POD_CHROMIUM_PATH "
+                    "to a compatible Chromium executable."
+                ) from original_error
             browser = p.chromium.launch(
-                executable_path="/opt/pw-browsers/chromium-1194/chrome-linux/chrome")
+                executable_path=browser_path,
+                args=["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
+            )
         page = browser.new_page()
         page.emulate_media(media="print")
         for name in names:
