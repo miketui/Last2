@@ -81,8 +81,8 @@ curls-deliverables
 
 Suggested private paths:
 ```text
-books/curls-and-contemplation/epub/Curls-and-Contemplation-v8-20260610.epub
-books/curls-and-contemplation/pdf/Curls-and-Contemplation-POD-Royal-FINAL.pdf
+books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub
+books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf
 worksheets/pricing-confidence-kit.pdf
 worksheets/chapter-workbook.pdf
 bonuses/preorder-bonus-chapter.pdf

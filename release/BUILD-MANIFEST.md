@@ -226,3 +226,43 @@ post-ISBN, post-gate freeze).
 1. **ISBN** (Michael): purchase → insert into copyright page + `dc:identifier` → rebuild → re-verify page count/spine.
 2. **Cover wrap** commission against the frozen spec.
 3. **Kindle device test** (light/dark/sepia) for dark chapter panels.
+
+---
+
+# UPDATE — v14 editorial build (supersedes v8 above)
+
+**Build date:** July 19, 2026 · **Branch:** `agent/surgical-chapter-reduction-v14` · **PR:** `miketui/Last2#17`
+
+The v14 editorial build is the current repository and author-site delivery source. It reduces repetition across Chapters I–XVI while preserving quizzes, worksheets, references, key frameworks, and the book's practical mentor voice.
+
+## Current deliverables
+
+| File | Description | SHA-256 |
+|---|---|---|
+| `v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub` | EPUB 3.3; EPUBCheck 5.3.0: 0 fatals, 0 errors, 0 warnings, 0 infos | `991a21cf85202f75b8980c91af553f6d5d61521ee22bc96da6a5cf567de6a8c0` |
+| `v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf` | KDP Royal 6.69 × 9.61 in POD interior; 375 pages; all fonts embedded | `3887289552d572cfdec20696ec457354a4e25c78c614aa7e8d6e8eb9c16f3a3c` |
+| `v14-editorial/page-map.json` | Spine file → first page number map for the v14 PDF | See repository artifact |
+| `v14-editorial/EDITORIAL-AND-VALIDATION-REPORT.md` | Editorial scope, integrity checks, factual-safety review, and final hashes | See repository artifact |
+| `v14-editorial/PRE-MORTEM.md` | Release risk classification and mitigations | See repository artifact |
+
+## Locked private delivery paths
+
+- EPUB: `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
+- PDF: `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
+
+The paid files remain outside `author-site/public/`. The author site must deliver them only from the private `curls-deliverables` bucket through entitlement-checked signed URLs or secure server routes.
+
+## Validation summary
+
+- 50 publication XHTML/XML/OPF/NCX files parse with zero errors.
+- 64 multiple-choice questions and 64 worksheet prompts retained.
+- All local links, fragments, endnote targets, and backlinks resolve.
+- PDF page count and page map are stable; all 22 required openers are recto.
+- PDF text extraction reports zero font-resource or structural warnings.
+- Full details: `v14-editorial/EDITORIAL-AND-VALIDATION-REPORT.md`.
+
+## Still open before commercial distribution
+
+1. Insert purchased ISBNs into the copyright/metadata source, then rebuild and revalidate.
+2. Commission or resize the paperback cover wrap against the final 375-page spine specification.
+3. Complete Kindle device testing in light, dark, and sepia modes.

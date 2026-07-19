@@ -10,8 +10,8 @@ Build a production-ready author-commerce platform for **Curls & Contemplation: A
 
 Controlling repo truth:
 - Audit source: `author-site/docs/website-v4/00_REPO_AUDIT.md`.
-- Current EPUB: `release/Curls-and-Contemplation-v8-20260610.epub`.
-- Current PDF/POD interior: `release/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`.
+- Current EPUB: `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`.
+- Current PDF/POD interior: `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`.
 - The paid EPUB/PDF must later be uploaded to Supabase private Storage bucket `curls-deliverables`; never place paid deliverables under a web `public/` folder.
 
 ## 2. Audience
@@ -128,11 +128,11 @@ Dashboard must not:
 ## 10. Protected download requirements
 - Paid files are private in Supabase Storage bucket `curls-deliverables`.
 - File references:
-  - EPUB source artifact: `release/Curls-and-Contemplation-v8-20260610.epub`.
-  - PDF source artifact: `release/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`.
+  - EPUB source artifact: `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`.
+  - PDF source artifact: `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`.
 - Production object paths should use stable private keys, for example:
-  - `books/curls-and-contemplation/v8/Curls-and-Contemplation-v8-20260610.epub`
-  - `books/curls-and-contemplation/v8/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`
+  - `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
+  - `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
 - Signed URLs should expire within 24 hours or less.
 - Enforce download policy: default 3 attempts / 7 days unless support extends.
 - Record every signed URL request and download event.
@@ -264,7 +264,7 @@ Prompt 2 acceptance:
 - No `author-site/` is created.
 - No EPUB, POD, book, release, archive, or publishing build files are modified.
 - No real API keys or live payment activation appears.
-- Release artifact names are normalized to v8 artifacts from the audit.
+- Release artifact names are normalized to the validated v14 editorial artifacts.
 - Pricing is normalized to `$17.99` preorder and `$19.99` regular.
 
 Prompt 3 acceptance preview:

@@ -5,12 +5,12 @@ This runbook connects sandbox services only. Do not paste production/live keys i
 Locked private bucket: `curls-deliverables`
 
 Locked private object paths:
-- `books/curls-and-contemplation/epub/Curls-and-Contemplation-v8-20260610.epub`
-- `books/curls-and-contemplation/pdf/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`
+- `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
+- `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
 
 Local release source artifacts must stay outside public:
-- `release/Curls-and-Contemplation-v8-20260610.epub`
-- `release/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`
+- `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
+- `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
 
 ## A. Supabase sandbox
 
@@ -29,10 +29,10 @@ Local release source artifacts must stay outside public:
 5. Verify RLS is enabled on all app tables created by `author-site/supabase/migrations/0001_author_commerce.sql`.
 6. Verify anon and authenticated roles cannot read other customers' orders, purchases, claims, subscribers, download events, or analytics events.
 7. Create private Storage bucket `curls-deliverables`. Keep **public bucket** disabled.
-8. Upload `release/Curls-and-Contemplation-v8-20260610.epub` to:
-   `books/curls-and-contemplation/epub/Curls-and-Contemplation-v8-20260610.epub`
-9. Upload `release/CurlsAndContemplation-POD-Royal-v8-20260610.pdf` to:
-   `books/curls-and-contemplation/pdf/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`
+8. Upload `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub` to:
+   `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
+9. Upload `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf` to:
+   `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
 10. Verify the bucket remains private by attempting an unauthenticated object URL. It should be denied.
 11. Verify signed URLs are generated only through `/api/downloads/sign` after a sandbox user has an active entitlement.
 12. Verify a user without entitlement, a refunded purchase, and a revoked purchase are denied.
