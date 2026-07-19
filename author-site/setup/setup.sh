@@ -87,14 +87,14 @@ else
 fi
 
 log "Checking release artifacts"
-EPUB_PATH="$ROOT/release/v14.1-full-content/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub"
+EPUB_PATH="$ROOT/release/v14.2-zero-truncation/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub"
 ALT_EPUB_PATH="$ROOT/release/Curls-and-Contemplation-FINAL.epub"
 if [[ -f "$EPUB_PATH" ]]; then
-  java -jar "$EPUBCHECK_JAR" "$EPUB_PATH" > "$REPORTS_DIR/epubcheck-v14.1.txt" 2>&1 || true
-  log "EPUBCheck report written to $REPORTS_DIR/epubcheck-v14.1.txt"
+  java -jar "$EPUBCHECK_JAR" "$EPUB_PATH" > "$REPORTS_DIR/epubcheck-v14.2.txt" 2>&1 || true
+  log "EPUBCheck report written to $REPORTS_DIR/epubcheck-v14.2.txt"
 elif [[ -f "$ALT_EPUB_PATH" ]]; then
   java -jar "$EPUBCHECK_JAR" "$ALT_EPUB_PATH" > "$REPORTS_DIR/epubcheck-final.txt" 2>&1 || true
-  warn "Requested v14.1 EPUB was not found; validated the legacy FINAL EPUB instead."
+  warn "Requested v14.2 EPUB was not found; validated the legacy FINAL EPUB instead."
 else
   warn "No release EPUB found at expected paths. Codex must inspect release/ and report actual filenames."
 fi

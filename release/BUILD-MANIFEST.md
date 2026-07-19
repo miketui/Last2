@@ -267,8 +267,6 @@ The paid files remain outside `author-site/public/`. The author site must delive
 2. Commission or resize the paperback cover wrap against the final 375-page spine specification.
 3. Complete Kindle device testing in light, dark, and sepia modes.
 
----
-
 # UPDATE — v14.1 full-content repair (supersedes v14 above)
 
 **Build date:** July 19, 2026 · **Branch:** `agent/full-content-recompile-v14-1`
@@ -309,3 +307,46 @@ The paid files remain outside `author-site/public/` and must be delivered throug
 1. Insert purchased ISBNs into the copyright/metadata source, then rebuild and revalidate.
 2. Recalculate or resize the paperback cover wrap for the final 380-page interior.
 3. Complete Kindle device testing in light, dark, and sepia modes.
+
+---
+
+# UPDATE — v14.2 zero-truncation repair (supersedes v14.1 above)
+
+**Build date:** July 19, 2026 · **Branch:** `agent/v14-2-zero-truncation-release`
+
+The v14.2 build is the current repository and author-site delivery source. It closes the independent v14.1 audit findings: one clipped Chapter III citation URL, duplicated page-boundary call markers in Chapters I and II, five omitted sparse worksheet elements, mixed PDF page boxes, and validator blind spots.
+
+## Current deliverables
+
+| File | Description | SHA-256 |
+|---|---|---|
+| `v14.2-zero-truncation/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub` | EPUB 3.3; EPUBCheck 5.3.0 clean; complete frontmatter, Chapters I–XVI, and backmatter | `9214b3252711bf33abd951bdde6d56bf7848783292cf1ca90ee42a1c2e63c34c` |
+| `v14.2-zero-truncation/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf` | KDP Royal POD interior; 384 pages; all 1,194 font resources embedded | `d0364c4c00032bfc6e610a026817f3e7d833a840b9d0bf381ca2d3357ac3415f` |
+| `v14.2-zero-truncation/page-map.json` | Stable final spine-file-to-page map | See repository artifact |
+| `v14.2-zero-truncation/FULL-CONTENT-INTEGRITY-REPORT.md` | Exhaustive section-by-section source/EPUB/PDF proof | See repository artifact |
+| `v14.2-zero-truncation/INDEPENDENT-WORD-LINE-AUDIT.md` | Word/block, ending, marker, geometry, and visual audit | See repository artifact |
+| `v14.2-zero-truncation/REPAIR-AND-VALIDATION-REPORT.md` | Repair scope, gate results, hashes, and release boundary | See repository artifact |
+| `v14.2-zero-truncation/PRE-MORTEM.md` | Tiger, Paper Tiger, and Elephant risk review | See repository artifact |
+
+## Locked private delivery paths
+
+- EPUB: `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub`
+- PDF: `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf`
+
+The paid files remain outside `author-site/public/` and must be delivered through entitlement-checked signed URLs or secure server routes.
+
+## Validation summary
+
+- Complete PDF source blocks: 3,010/3,010; final section blocks: 46/46.
+- Required worksheet badges/footer pairs: 22/22; citation-call markers: source 86 / PDF 86.
+- Source-to-EPUB byte parity: 51/51 XML-family publication files.
+- EPUBCheck: 0 fatals, 0 errors, 0 warnings, 0 infos.
+- PDF: 384/384 uniform Royal page boxes, 1,194/1,194 embedded font resources, 67,056 extracted words, Ghostscript PASS.
+- Visual/geometry audit: 384/384 pages rasterized; no outer-edge ink or text outside crop boxes; 20 contact sheets reviewed.
+- Author site: lint PASS, typecheck PASS, 13 test files/61 tests PASS, Next.js production build PASS.
+
+## Still open before commercial paperback/storefront activation
+
+1. Recalculate the separate cover wrap for the 384-page interior.
+2. Insert real purchased ISBN metadata if required; no placeholder or invented ISBN ships.
+3. Complete Kindle/device/storefront preview in light, dark, and sepia modes.

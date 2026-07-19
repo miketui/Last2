@@ -39,13 +39,12 @@ def ink_fractions(pdf_path, dpi=36):
 
 bpf.ink_fractions = ink_fractions
 
-# Three files render real-but-light-ink pages that the blank detector would
-# wrongly drop: the sparse third TOC page (8 entries), the Acknowledgments
-# closing page (signature + P.S. box + quote), and the final About-the-Author
-# closing line. Keep them.
+# Two files render real-but-light-ink pages that the blank detector would
+# wrongly drop: the sparse third TOC page (8 entries) and the Acknowledgments
+# closing page (signature + P.S. box + quote). Keep them.
 bpf.KEEP_BLANKS_FILES = frozenset(
     set(bpf.KEEP_BLANKS_FILES)
-    | {"3-TableOfContents.xhtml", "33-Acknowledgments.xhtml", "34-AbouttheAuthor.xhtml"}
+    | {"3-TableOfContents.xhtml", "33-Acknowledgments.xhtml"}
 )
 
 # Render with the archived print stylesheet injected at render time. The v13

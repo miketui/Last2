@@ -81,8 +81,8 @@ curls-deliverables
 
 Suggested private paths:
 ```text
-books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub
-books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf
+books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub
+books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf
 worksheets/pricing-confidence-kit.pdf
 worksheets/chapter-workbook.pdf
 bonuses/preorder-bonus-chapter.pdf

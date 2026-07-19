@@ -15,6 +15,7 @@ import json
 import posixpath
 import re
 import sys
+import unicodedata
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -33,6 +34,9 @@ NS = {
     "x": "http://www.w3.org/1999/xhtml",
 }
 WORD_RE = re.compile(r"[A-Za-z0-9]+(?:[’'-][A-Za-z0-9]+)*")
+TOKEN_RE = re.compile(r"[a-z0-9]+")
+EXPECTED_PAGE_WIDTH = 481.92
+EXPECTED_PAGE_HEIGHT = 691.92
 
 
 @dataclass
@@ -44,6 +48,11 @@ class SectionResult:
     source_epub_equal: bool
     anchors_checked: int
     missing_anchors: int
+    final_block_exact: bool
+    required_layout_blocks: int
+    missing_layout_blocks: int
+    source_noterefs: int
+    pdf_noterefs: int
 
 
 def words(text: str) -> list[str]:
@@ -54,8 +63,44 @@ def normalize(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
 
 
+def folded(text: str) -> str:
+    """Fold punctuation, tracking, and layout hyphenation for exact text proof."""
+    text = (
+        text.replace("’", "'")
+        .replace("‘", "'")
+        .replace("“", '"')
+        .replace("”", '"')
+        .replace("ﬁ", "fi")
+        .replace("ﬂ", "fl")
+        .replace("–", "-")
+        .replace("—", "-")
+    )
+    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+    return "".join(TOKEN_RE.findall(text.lower()))
+
+
+def word_tokens(text: str) -> list[str]:
+    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+    return TOKEN_RE.findall(text.lower())
+
+
 def element_text(element: etree._Element) -> str:
     return " ".join(" ".join(element.itertext()).split())
+
+
+def remove_preserving_tail(element: etree._Element) -> None:
+    """Remove an XML node without dropping visible prose in its tail."""
+    parent = element.getparent()
+    if parent is None:
+        return
+    tail = element.tail
+    previous = element.getprevious()
+    if tail:
+        if previous is not None:
+            previous.tail = (previous.tail or "") + tail
+        else:
+            parent.text = (parent.text or "") + tail
+    parent.remove(element)
 
 
 def print_body_text(doc: etree._Element) -> str:
@@ -63,6 +108,13 @@ def print_body_text(doc: etree._Element) -> str:
     if body is None:
         return ""
     return element_text(body)
+
+
+def text_without_noterefs(element: etree._Element) -> str:
+    clone = etree.fromstring(etree.tostring(element))
+    for sup in clone.xpath(".//x:sup[x:a]", namespaces=NS):
+        remove_preserving_tail(sup)
+    return element_text(clone)
 
 
 def printable_body(doc: etree._Element) -> etree._Element | None:
@@ -79,9 +131,7 @@ def printable_body(doc: etree._Element) -> etree._Element | None:
         'or contains(concat(" ", normalize-space(@class), " "), " print-instruction ") '
         'or contains(concat(" ", normalize-space(@class), " "), " sr-only ")]'
     ):
-        parent = hidden.getparent()
-        if parent is not None:
-            parent.remove(hidden)
+        remove_preserving_tail(hidden)
     return body
 
 
@@ -136,6 +186,135 @@ def block_anchors(container: etree._Element, limit: int = 3, width: int = 8) -> 
         return candidates
     indexes = [round(i * (len(candidates) - 1) / (limit - 1)) for i in range(limit)]
     return [candidates[index] for index in indexes]
+
+
+def semantic_blocks(body: etree._Element) -> list[str]:
+    """Return every visible leaf-level prose block in document order."""
+    tags = {
+        "p",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "li",
+        "label",
+        "td",
+        "th",
+        "blockquote",
+        "figcaption",
+    }
+    candidates: list[etree._Element] = []
+    for element in body.iter():
+        local = etree.QName(element).localname if isinstance(element.tag, str) else ""
+        if local not in tags:
+            continue
+        if any(
+            etree.QName(child).localname in tags
+            for child in element.iterdescendants()
+            if isinstance(child.tag, str)
+        ):
+            continue
+        text = text_without_noterefs(element)
+        if folded(text):
+            candidates.append(element)
+
+    blocks = [text_without_noterefs(element) for element in candidates]
+    if not blocks:
+        whole = text_without_noterefs(body)
+        return [whole] if folded(whole) else []
+    return blocks
+
+
+def required_layout_blocks(body: etree._Element) -> list[str]:
+    """Text whose omission can hide sparse but intentional print elements."""
+    elements = body.xpath(
+        './/x:footer '
+        '| .//*[contains(concat(" ", normalize-space(@class), " "), " badge ")]',
+        namespaces=NS,
+    )
+    blocks: list[str] = []
+    for element in elements:
+        text = text_without_noterefs(element)
+        if folded(text):
+            blocks.append(text)
+    return blocks
+
+
+def page_text_without_layout_markers(page: fitz.Page) -> str:
+    """Extract reading text while excluding folios and citation-call numbers."""
+    parts: list[str] = []
+    for block in page.get_text("dict", sort=True).get("blocks", []):
+        for line in block.get("lines", []):
+            line_parts: list[str] = []
+            for span in line.get("spans", []):
+                clean = " ".join(span.get("text", "").split())
+                if not clean:
+                    continue
+                y0 = span["bbox"][1]
+                size = float(span.get("size", 99))
+                if y0 >= page.rect.height - 58 and re.fullmatch(r"\d+", clean):
+                    continue
+                # Source noteref anchors render as isolated seven-point digits.
+                # They are counted independently so they cannot hide a duplicate.
+                if re.fullmatch(r"\d+", clean) and size <= 7.2:
+                    continue
+                # Decorative drop caps are separate large glyphs that may sort
+                # after their first line. block_present() proves them separately.
+                if re.fullmatch(r"[A-Z]", clean) and size >= 18:
+                    continue
+                line_parts.append(clean)
+            if line_parts:
+                parts.append(" ".join(line_parts))
+    return " ".join(parts)
+
+
+def pdf_noteref_markers(page: fitz.Page) -> list[str]:
+    markers: list[str] = []
+    for block in page.get_text("dict").get("blocks", []):
+        for line in block.get("lines", []):
+            for span in line.get("spans", []):
+                clean = span.get("text", "").strip()
+                if re.fullmatch(r"\d+", clean) and float(span.get("size", 99)) <= 7.2:
+                    markers.append(clean)
+    return markers
+
+
+def subsequence_span(needles: list[str], haystack: list[str]) -> int | None:
+    if not needles:
+        return 0
+    starts = [index for index, token in enumerate(haystack) if token == needles[0]]
+    best: int | None = None
+    for start in starts:
+        cursor = start
+        for needle in needles:
+            while cursor < len(haystack) and haystack[cursor] != needle:
+                cursor += 1
+            if cursor == len(haystack):
+                break
+            cursor += 1
+        else:
+            span = cursor - start
+            best = span if best is None else min(best, span)
+    return best
+
+
+def block_present(block: str, pdf_text: str) -> bool:
+    """Prove a complete source block rendered, tolerating layout-only spacing."""
+    needle = folded(block)
+    rendered = folded(pdf_text)
+    if not needle or needle in rendered:
+        return True
+    # Chromium emits decorative drop caps outside normal reading order.
+    if len(needle) > 1 and needle[1:] in rendered and needle[0] in rendered:
+        return True
+    # Printed external links can add an href inside a source block. Require all
+    # source words in order and bound the number of allowed layout-only extras.
+    source_words = word_tokens(block)
+    span = subsequence_span(source_words, word_tokens(pdf_text))
+    allowance = max(20, round(len(source_words) * 0.35))
+    return span is not None and span <= len(source_words) + allowance
 
 
 def anchor_present(anchor: str, pdf_text: str) -> bool:
@@ -285,6 +464,28 @@ def validate(
     if expected_pages is not None and len(pdf) != expected_pages:
         errors.append(f"PDF has {len(pdf)} pages, expected {expected_pages}")
 
+    page_box_mismatches: list[str] = []
+    for page_number, page in enumerate(pdf, 1):
+        media_width = float(page.mediabox.width)
+        media_height = float(page.mediabox.height)
+        crop_width = float(page.cropbox.width)
+        crop_height = float(page.cropbox.height)
+        if (
+            abs(media_width - EXPECTED_PAGE_WIDTH) > 0.01
+            or abs(media_height - EXPECTED_PAGE_HEIGHT) > 0.01
+            or abs(crop_width - EXPECTED_PAGE_WIDTH) > 0.01
+            or abs(crop_height - EXPECTED_PAGE_HEIGHT) > 0.01
+        ):
+            page_box_mismatches.append(
+                f"p{page_number} media={media_width:.2f}x{media_height:.2f} "
+                f"crop={crop_width:.2f}x{crop_height:.2f}"
+            )
+    if page_box_mismatches:
+        errors.append(
+            f"{len(page_box_mismatches)} PDF pages have a nonuniform/non-Royal page box: "
+            + "; ".join(page_box_mismatches[:8])
+        )
+
     results: list[SectionResult] = []
     chapter_questions = 0
     chapter_prompts = 0
@@ -317,7 +518,11 @@ def validate(
             source_data = source_path.read_bytes()
             packed_data = epub.read("OEBPS/" + href)
             doc = parse_xhtml(source_data)
-            source_text = print_body_text(doc)
+            body = printable_body(doc)
+            if body is None:
+                errors.append(f"{name}: missing printable body")
+                continue
+            source_text = text_without_noterefs(body)
             source_word_count = len(words(source_text))
 
             start = page_map.get(name)
@@ -325,13 +530,27 @@ def validate(
             if not isinstance(start, int) or not isinstance(next_start, int) or start >= next_start:
                 errors.append(f"invalid PDF page span for {name}: {start}-{next_start}")
                 continue
-            pdf_text = normalize(" ".join(pdf[page - 1].get_text() for page in range(start, next_start)))
+            rendered_text = " ".join(
+                page_text_without_layout_markers(pdf[page - 1])
+                for page in range(start, next_start)
+            )
+            rendered_noterefs = [
+                marker
+                for page in range(start, next_start)
+                for marker in pdf_noteref_markers(pdf[page - 1])
+            ]
+            source_noterefs = [
+                text.strip()
+                for text in body.xpath(".//x:sup/x:a/text()", namespaces=NS)
+                if text and text.strip()
+            ]
 
-            anchors: list[str] = []
+            anchors = semantic_blocks(body)
+            layout_blocks = required_layout_blocks(body)
             questions = prompts = 0
             if group == "Chapter":
                 try:
-                    anchors, questions, prompts = chapter_anchors(doc)
+                    _sampled, questions, prompts = chapter_anchors(doc)
                 except ValueError as exc:
                     errors.append(f"{name}: {exc}")
                 chapter_questions += questions
@@ -340,15 +559,30 @@ def validate(
                     errors.append(f"{name}: {questions} quiz questions, expected 4")
                 if prompts != 4:
                     errors.append(f"{name}: {prompts} worksheet prompts, expected 4")
-            elif source_word_count >= 40:
-                body = printable_body(doc)
-                anchors = block_anchors(body) if body is not None else []
-
-            missing = [anchor for anchor in anchors if anchor and not anchor_present(anchor, pdf_text)]
+            missing = [block for block in anchors if block and not block_present(block, rendered_text)]
             if missing:
                 errors.append(
-                    f"{name}: {len(missing)}/{len(anchors)} rendered anchors missing: "
-                    + " | ".join(missing)
+                    f"{name}: {len(missing)}/{len(anchors)} complete source blocks missing: "
+                    + " | ".join(text[:180] for text in missing[:4])
+                )
+
+            missing_layout = [
+                block for block in layout_blocks if not block_present(block, rendered_text)
+            ]
+            if missing_layout:
+                errors.append(
+                    f"{name}: {len(missing_layout)}/{len(layout_blocks)} required badge/footer "
+                    "blocks missing: " + " | ".join(missing_layout)
+                )
+
+            final_block_exact = not anchors or block_present(anchors[-1], rendered_text)
+            if not final_block_exact:
+                errors.append(f"{name}: final source block is missing from its PDF span")
+
+            if source_noterefs != rendered_noterefs:
+                errors.append(
+                    f"{name}: citation-call markers differ: source={source_noterefs}, "
+                    f"PDF={rendered_noterefs}"
                 )
 
             results.append(
@@ -360,6 +594,11 @@ def validate(
                     source_epub_equal=source_data == packed_data,
                     anchors_checked=len(anchors),
                     missing_anchors=len(missing),
+                    final_block_exact=final_block_exact,
+                    required_layout_blocks=len(layout_blocks),
+                    missing_layout_blocks=len(missing_layout),
+                    source_noterefs=len(source_noterefs),
+                    pdf_noterefs=len(rendered_noterefs),
                 )
             )
 
@@ -389,6 +628,14 @@ def validate(
         "pdf_pages": len(pdf),
         "recto_openers": len(recto),
         "toc_folios_checked": toc_folios_checked,
+        "semantic_blocks_checked": sum(result.anchors_checked for result in results),
+        "semantic_blocks_missing": sum(result.missing_anchors for result in results),
+        "final_blocks_exact": sum(result.final_block_exact for result in results),
+        "required_layout_blocks": sum(result.required_layout_blocks for result in results),
+        "required_layout_blocks_missing": sum(result.missing_layout_blocks for result in results),
+        "source_noterefs": sum(result.source_noterefs for result in results),
+        "pdf_noterefs": sum(result.pdf_noterefs for result in results),
+        "uniform_page_boxes": len(pdf) - len(page_box_mismatches),
         "epub_sha256": sha256(epub_path),
         "pdf_sha256": sha256(pdf_path),
     }
@@ -422,23 +669,42 @@ def markdown_report(results: list[SectionResult], errors: list[str], summary: di
         f"- PDF pages: {summary['pdf_pages']}",
         f"- Required recto openers: {summary['recto_openers']}",
         f"- Table of Contents folios matching the PDF page map: {summary['toc_folios_checked']}",
+        f"- Complete semantic source blocks found in PDF: "
+        f"{summary['semantic_blocks_checked'] - summary['semantic_blocks_missing']}/"
+        f"{summary['semantic_blocks_checked']}",
+        f"- Final section blocks found in PDF: {summary['final_blocks_exact']}/"
+        f"{summary['linear_spine_files']}",
+        f"- Required worksheet badges/footers found in PDF: "
+        f"{summary['required_layout_blocks'] - summary['required_layout_blocks_missing']}/"
+        f"{summary['required_layout_blocks']}",
+        f"- Citation-call markers (source/PDF): {summary['source_noterefs']}/"
+        f"{summary['pdf_noterefs']}",
+        f"- Uniform {EXPECTED_PAGE_WIDTH:.2f} x {EXPECTED_PAGE_HEIGHT:.2f} pt page boxes: "
+        f"{summary['uniform_page_boxes']}/{summary['pdf_pages']}",
         "",
         "## Section-by-section proof",
         "",
-        "| Group | Source file | Packaged words | PDF pages | EPUB parity | PDF anchors |",
-        "|---|---|---:|---:|---|---:|",
+        "| Group | Source file | Packaged words | PDF pages | EPUB parity | PDF blocks | Final | Layout | Noterefs |",
+        "|---|---|---:|---:|---|---:|---|---:|---:|",
     ]
     for result in results:
         lines.append(
             f"| {result.group} | `{result.name}` | {result.source_words:,} | {result.pdf_pages} | "
             f"{'exact' if result.source_epub_equal else 'MISMATCH'} | "
-            f"{result.anchors_checked - result.missing_anchors}/{result.anchors_checked} |"
+            f"{result.anchors_checked - result.missing_anchors}/{result.anchors_checked} | "
+            f"{'exact' if result.final_block_exact else 'MISSING'} | "
+            f"{result.required_layout_blocks - result.missing_layout_blocks}/"
+            f"{result.required_layout_blocks} | "
+            f"{result.source_noterefs}/{result.pdf_noterefs} |"
         )
     lines.extend(["", "## Findings", ""])
     if errors:
         lines.extend(f"- FAIL: {error}" for error in errors)
     else:
-        lines.append("- No missing, truncated, stale, or reordered publication section was detected.")
+        lines.append(
+            "- No missing, truncated, stale, reordered, duplicated-noteref, sparse-layout, "
+            "or page-box defect was detected."
+        )
     lines.append("")
     return "\n".join(lines)
 

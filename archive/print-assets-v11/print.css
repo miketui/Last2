@@ -889,14 +889,51 @@ tr:nth-child(even) {
   line-height: 1.4;
 }
 
+/* Citations may contain percent-encoded URLs with no natural spaces. Let
+   Chromium wrap them at any character instead of clipping a source URL at
+   the edge of the print box. */
+.footnotes li,
+.footnotes li p,
+.endnotes li,
+.endnotes li p,
+.footnote-item,
+.footnote-item p,
+.endnote-item,
+.endnote-item p {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: none;
+}
+
 sup {
   font-size: 7pt;
   vertical-align: super;
+  /* Chromium can duplicate an inline superscript when its line fragments at
+     a page boundary. An atomic inline-block keeps each call marker in one
+     fragment without changing the EPUB text. */
+  display: inline-block;
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 sup a {
   color: #000;
   text-decoration: none;
+}
+
+/* Targeted source spans bind a page-edge citation marker to its preceding
+   word. This prevents Chromium from painting the same marker on both sides
+   of a fragmented line. */
+.noteref-keep {
+  display: inline-block;
+  white-space: nowrap;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.noteref-page-safe {
+  break-inside: avoid;
+  page-break-inside: avoid;
 }
 
 /* ====================================================================
@@ -1557,10 +1594,100 @@ body.bio-body {
   overflow: visible;
 }
 
+/* Keep the biography's closing sentence with its paragraph. The screen card
+   uses large web spacing and 1.8 line-height; at Royal trim that stranded the
+   final sentence on a fourth page. These print-only values preserve every
+   word while producing a balanced two-page biography. */
+body.bio-body .profile-card {
+  padding: 0.22in 0.15in;
+}
+
+body.bio-body .profile-card h1 {
+  margin-bottom: 0.14in;
+}
+
+body.bio-body .image-container {
+  margin: 0.10in 0;
+}
+
+body.bio-body .author-img {
+  max-width: 1.35in;
+  margin-bottom: 0.08in;
+}
+
+body.bio-body .bio-content {
+  margin-top: 0.08in;
+  line-height: 1.45;
+}
+
+body.bio-body .profile-card p {
+  font-size: 9.5pt;
+  line-height: 1.45;
+  margin-bottom: 0.07in;
+}
+
+body.bio-body .highlight-quote {
+  margin: 0.12in 0.25in;
+  padding: 0.08in;
+}
+
+body.bio-body .closing-line {
+  margin-top: 0.08in;
+  break-before: avoid;
+  page-break-before: avoid;
+}
+
 /* --- FRONTMATTER WORKSHEETS: single page each --- */
 /* 5-SelfAssessment (Creative Identity Audit) */
 /* 6-AffirmationOdyssey */
 .frontmatter-shell {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+/* A hidden EPUB-only CTA is the first DOM child of standardized worksheet
+   files. That makes the visible worksheet the first *printed* child while
+   its screen stylesheet still requests break-before:page. Neutralize that
+   manufactured leading page so the badge and heading stay together. */
+body.worksheet-page-body > .worksheet-page {
+  break-before: avoid !important;
+  page-break-before: avoid !important;
+  break-inside: auto !important;
+  page-break-inside: auto !important;
+  /* Browser-page margins already provide the Royal-trim safe area. Reclaim
+     screen-only card padding so real worksheet text and its footer share the
+     same content page instead of manufacturing a footer-only page. */
+  padding: 0.22in 0.25in;
+}
+
+body.worksheet-page-body .worksheet-header,
+body.worksheet-page-body .worksheet-page > header {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  break-after: auto;
+  page-break-after: auto;
+}
+
+body.worksheet-page-body .worksheet-header h2,
+body.worksheet-page-body .worksheet-page > header h2 {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+body.worksheet-page-body .quote-box {
+  margin: 0.12in 0;
+  padding: 0.10in;
+}
+
+/* Keep the running worksheet label with the worksheet's final content. The
+   screen spacing was large enough to orphan a one-line footer on a sparse
+   extra page in four print sections. */
+.worksheet-page .footer,
+.worksheet-page > footer {
+  margin-top: 0.06in;
+  padding-top: 0.05in;
+  font-size: 7pt;
+  line-height: 1.2;
   break-inside: avoid;
   page-break-inside: avoid;
 }
