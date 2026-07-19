@@ -71,8 +71,8 @@ Scaffolded: final Supabase project, live Stripe products, MailerLite automations
 ### Supabase private bucket checklist
 - Apply `supabase/migrations/0001_author_commerce.sql`.
 - Create private bucket `curls-deliverables`.
-- Upload EPUB to `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`.
-- Upload PDF to `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`.
+- Upload EPUB to `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`.
+- Upload PDF to `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`.
 - Do not add public read policies for paid deliverables.
 
 ### Email and marketing checklist
@@ -123,13 +123,13 @@ supabase db push --include-all
 
 Create private Storage bucket `curls-deliverables` with public access disabled. Upload the local release artifacts from the repo root to these private object paths only:
 
-- EPUB: `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
-- PDF: `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
+- EPUB: `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`
+- PDF: `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`
 
 Source artifacts remain outside public:
 
-- `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
-- `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
+- `release/v14.1-full-content/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`
+- `release/v14.1-full-content/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`
 
 After credentials are present, run:
 

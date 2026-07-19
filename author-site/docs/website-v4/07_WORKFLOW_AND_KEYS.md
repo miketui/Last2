@@ -55,8 +55,8 @@ Create private bucket:
 curls-deliverables
 ```
 Upload paid files after production storage is ready:
-- `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
-- `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
+- `release/v14.1-full-content/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`
+- `release/v14.1-full-content/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`
 
 Rules:
 - Never copy paid files into `author-site/public/`.

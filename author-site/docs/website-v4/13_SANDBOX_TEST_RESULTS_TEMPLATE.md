@@ -8,8 +8,8 @@ Fill this out only after sandbox credentials are configured. Do not paste secret
 | Supabase | Migration applied | ☐ |  |  |  |
 | Supabase | RLS verified | ☐ |  |  |  |
 | Supabase Storage | Private bucket `curls-deliverables` created | ☐ |  |  |  |
-| Supabase Storage | EPUB uploaded to private path | ☐ | `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub` |  |  |
-| Supabase Storage | PDF uploaded to private path | ☐ | `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf` |  |  |
+| Supabase Storage | EPUB uploaded to private path | ☐ | `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub` |  |  |
+| Supabase Storage | PDF uploaded to private path | ☐ | `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf` |  |  |
 | Downloads | Signed URL test passed | ☐ |  |  |  |
 | Downloads | Unauthenticated download denied | ☐ |  |  |  |
 | Downloads | Refunded purchase denied | ☐ |  |  |  |

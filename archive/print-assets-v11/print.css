@@ -1540,8 +1540,21 @@ section.vision-journal,
 section.doodle-page {
   break-inside: avoid;
   page-break-inside: avoid;
-  max-height: 8.11in;
-  overflow: hidden;
+  max-height: none;
+  overflow: visible;
+}
+
+/* The author biography is longer than one Royal-trim page. It must fragment
+   naturally; treating it as a one-page card clipped the biography after
+   “Greatest Dynasty…” in the previously shipped PDF. */
+body.bio-body {
+  display: block;
+}
+.profile-card {
+  break-inside: auto;
+  page-break-inside: auto;
+  max-height: none;
+  overflow: visible;
 }
 
 /* --- FRONTMATTER WORKSHEETS: single page each --- */

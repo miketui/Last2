@@ -39,12 +39,14 @@ def ink_fractions(pdf_path, dpi=36):
 
 bpf.ink_fractions = ink_fractions
 
-# Two files render real-but-light-ink pages that the blank detector would
-# wrongly drop: the sparse third TOC page (8 entries) and the
-# Acknowledgments closing page (teal signature + P.S. box + gold quote —
-# missing from the previously shipped v13 interior). Keep them.
+# Three files render real-but-light-ink pages that the blank detector would
+# wrongly drop: the sparse third TOC page (8 entries), the Acknowledgments
+# closing page (signature + P.S. box + quote), and the final About-the-Author
+# closing line. Keep them.
 bpf.KEEP_BLANKS_FILES = frozenset(
-    set(bpf.KEEP_BLANKS_FILES) | {"3-TableOfContents.xhtml", "33-Acknowledgments.xhtml"})
+    set(bpf.KEEP_BLANKS_FILES)
+    | {"3-TableOfContents.xhtml", "33-Acknowledgments.xhtml", "34-AbouttheAuthor.xhtml"}
+)
 
 # Render with the archived print stylesheet injected at render time. The v13
 # ebook source dropped its <link media="print"> tags (correct for the EPUB),

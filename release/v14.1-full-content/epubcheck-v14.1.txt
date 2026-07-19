@@ -1,0 +1,7 @@
+EPUBCheck v5.3.0
+Validated using EPUB 3.3 rules.
+
+No errors or warnings detected.
+Messages: 0 fatals / 0 errors / 0 warnings / 0 infos
+
+EPUBCheck completed
