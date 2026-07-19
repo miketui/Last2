@@ -39,13 +39,13 @@ Use Vercel **Preview** environment variables first. Do not add Production env va
 
 Create private bucket `curls-deliverables`, then upload:
 
-- `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`
-- `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`
+- `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub`
+- `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf`
 
 Source files stay outside the website public folder:
 
-- `release/v14.1-full-content/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`
-- `release/v14.1-full-content/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`
+- `release/v14.2-zero-truncation/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub`
+- `release/v14.2-zero-truncation/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf`
 
 ### Stripe test mode
 

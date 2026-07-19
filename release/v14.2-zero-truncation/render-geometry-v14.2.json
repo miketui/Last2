@@ -1,0 +1,78 @@
+{
+  "result": "PASS",
+  "pdf_pages": 384,
+  "pages_rendered": 384,
+  "raster_sizes": [
+    [
+      482,
+      692
+    ]
+  ],
+  "pdf_page_sizes_points": [
+    [
+      481.92,
+      691.92
+    ]
+  ],
+  "outermost_3px_edge_ink_pages": [],
+  "text_spans_outside_crop_box": [],
+  "sparse_pages": [
+    {
+      "page": 2,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 20,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 38,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 56,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 70,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 72,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 94,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 174,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 232,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 258,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 274,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 276,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 298,
+      "ink_fraction": 0.0
+    },
+    {
+      "page": 338,
+      "ink_fraction": 0.0
+    }
+  ],
+  "contact_sheets": 20
+}

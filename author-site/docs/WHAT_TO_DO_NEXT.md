@@ -130,8 +130,8 @@ Preview. Anything prefixed `NEXT_PUBLIC_` is exposed to the browser — never pu
 ## 3. Upload the book/worksheet files (see Audit §5.B)
 
 Upload to the **private** bucket `curls-deliverables`:
-- EPUB → `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`
-- POD PDF → `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`
+- EPUB → `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub`
+- POD PDF → `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf`
   (source files are in the repo `release/` folder — do **not** copy them into `public/`)
 
 Upload to the **public** bucket `curls-free`:

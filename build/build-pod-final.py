@@ -43,7 +43,10 @@ OEBPS = Path(__file__).resolve().parent.parent / "book" / "OEBPS"
 OPF = OEBPS / "content.opf"
 NS = {"opf": "http://www.idpf.org/2007/opf"}
 
-PAGE_W = 6.69 * 72
+# Chromium rounds the requested 6.69in Royal trim to 481.92 PDF points.
+# Use the rendered page box for inserted recto blanks and folio overlays too,
+# so every page in the assembled interior has one exact MediaBox/CropBox.
+PAGE_W = 481.92
 PAGE_H = 9.61 * 72
 
 EXCLUDE = {"0-Cover.xhtml", "worksheet-download-fallback.xhtml"}

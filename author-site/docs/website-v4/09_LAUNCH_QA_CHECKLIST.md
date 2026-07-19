@@ -8,7 +8,7 @@ No app scaffold, credentials, live payment activation, or release/book/build/arc
 ## 1. Pre-build gates
 - [ ] Confirm `author-site/docs/website-v4/00_REPO_AUDIT.md` remains controlling repo truth.
 - [ ] Confirm no existing authoritative app supersedes `author-site/`.
-- [ ] Confirm v14.1 release artifact names and checksums against `release/v14.1-full-content/REPAIR-AND-VALIDATION-REPORT.md`.
+- [ ] Confirm v14.2 release artifact names and checksums against `release/v14.2-zero-truncation/REPAIR-AND-VALIDATION-REPORT.md`.
 - [ ] Confirm launch mode for build environment.
 - [ ] Confirm domain or continue using `{{DOMAIN}}`/`NEXT_PUBLIC_SITE_URL` placeholders.
 
@@ -120,7 +120,7 @@ No app scaffold, credentials, live payment activation, or release/book/build/arc
 
 - [ ] Apply `author-site/supabase/migrations/0001_author_commerce.sql` to a Supabase sandbox and verify every RLS policy with anon, authenticated customer, admin, and service-role clients.
 - [ ] Create private Supabase Storage bucket `curls-deliverables` with no public read policy.
-- [ ] Upload EPUB to `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub` and PDF to `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf` in the private bucket.
+- [ ] Upload EPUB to `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub` and PDF to `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf` in the private bucket.
 - [ ] Confirm `/api/downloads/sign` returns typed denials for unauthenticated, no purchase, refunded, revoked, over-limit, config-missing, and storage-error cases.
 - [ ] Confirm signed download URLs expire after 24 hours and do not reveal local `release/` or app `public/` paths.
 - [ ] Create Stripe test-mode preorder and regular one-time prices; verify checkout ignores client-provided price IDs and chooses server-side env price IDs.

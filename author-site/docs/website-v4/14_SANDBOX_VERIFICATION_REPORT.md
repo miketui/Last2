@@ -7,17 +7,17 @@ Prompt 7 verified sandbox-provider readiness for Supabase, Stripe test mode, pro
 ## Date / run context
 
 - Date: 2026-06-10
-- Artifact-path refresh: 2026-07-19. Provider and build results below remain the historical June 10 verification; the v14.1 path changes are covered by the current repository tests.
+- Artifact-path refresh: 2026-07-19. Provider and build results below remain the historical June 10 verification; the v14.2 path changes are covered by the current repository tests.
 - Repo path: `/workspace/Last2`
 - App path: `author-site/`
 - Local branch: current working branch in `miketui/Last2`
 - Local release artifacts remain outside public:
-  - `release/v14.1-full-content/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`
-  - `release/v14.1-full-content/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`
+  - `release/v14.2-zero-truncation/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub`
+  - `release/v14.2-zero-truncation/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf`
 - Locked Supabase bucket: `curls-deliverables`
 - Locked private object paths:
-  - `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub`
-  - `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf`
+  - `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub`
+  - `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf`
 
 ## Sandbox credential presence
 

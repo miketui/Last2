@@ -32,7 +32,7 @@ No app scaffold, credentials, live payment activation, or release/book/build/arc
 
 **Body:** Curls & Contemplation brings craft, business, self-trust, and creative discipline into one guide for building a freelance beauty career with more clarity and less panic.
 
-**Trust note:** Current release artifacts are the validated v14.1 full-content EPUB and POD PDF. Product/author credibility claims beyond basic book facts require verification. `[VERIFY: claims-evidence.md]`
+**Trust note:** Current release artifacts are the validated v14.2 zero-truncation EPUB and POD PDF. Product/author credibility claims beyond basic book facts require verification. `[VERIFY: claims-evidence.md]`
 
 ## Book
 **Headline:** A freelance hairstylist's guide to creative excellence.

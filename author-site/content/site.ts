@@ -10,8 +10,8 @@ export const siteConfig = {
   releaseDate: process.env.RELEASE_DATE ?? "2026-06-10",
   storageBucket: process.env.SUPABASE_STORAGE_BUCKET ?? "curls-deliverables",
   deliverables: {
-    epub: "books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub",
-    pdf: "books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf"
+    epub: "books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub",
+    pdf: "books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf"
   },
   external: {
     kindle: "#kindle-link-pending",

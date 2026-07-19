@@ -7,8 +7,8 @@ export const PRIVATE_BUCKET = "curls-deliverables";
 export const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24;
 
 export const deliverables = {
-  epub: { slug: "epub", label: "EPUB", path: "books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub" },
-  pdf: { slug: "pdf", label: "PDF", path: "books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf" },
+  epub: { slug: "epub", label: "EPUB", path: "books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub" },
+  pdf: { slug: "pdf", label: "PDF", path: "books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf" },
   card_deck: { slug: "card_deck", label: "Affirmation Card Deck (PDF)", path: "cards/Affirmation-Deck-v1.pdf" }
 } as const;
 

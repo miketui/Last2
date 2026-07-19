@@ -5,8 +5,8 @@ import { isMeaningfulSandboxValue, loadSandboxEnv } from "./check-sandbox-env.mj
 
 export const lockedStorage = {
   bucket: "curls-deliverables",
-  epub: "books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.1-FULL-CONTENT-KDP-FINAL.epub",
-  pdf: "books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.1-FULL-CONTENT-POD-Interior-FINAL.pdf"
+  epub: "books/curls-and-contemplation/epub/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-KDP-FINAL.epub",
+  pdf: "books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14.2-ZERO-TRUNCATION-POD-Interior-FINAL.pdf"
 };
 
 function walk(dir) {
