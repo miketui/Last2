@@ -56,7 +56,7 @@ Artifact: `Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
 - 22 title, part, chapter, and conclusion openers land on odd-numbered recto pages.
 - The page map remained stable after Table of Contents folios were injected.
 - Representative title, body, endnote, quiz, worksheet, quote, Quiz Key, and final bibliography pages were rendered and visually inspected with no clipping, overlap, broken glyphs, or truncated text.
-- SHA-256: `6586b35621cd5af11981e959f70ffad5c588a33d3c34387fc2c37da335abe121`
+- SHA-256: `045ecc63ff69a45d77f752b8a92f9c145b99ad814414684852d82e668c0b7aa2`
 
 ## EPUB Validation
 
@@ -66,7 +66,7 @@ Artifact: `Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
 - EPUB 3.3 rules used.
 - `mimetype` is the first archive entry and is stored uncompressed.
 - All 50 packaged publication source files are byte-for-byte identical to the final source tree.
-- SHA-256: `4a38a0cd5770a7336a2930913306daedaace8dd56fb4348efb562a8984ed4d33`
+- SHA-256: `09980a7e8f12bb1f23b2602ce00ed6288a8a4ab319103ab6ecc47f4d3ff8c6b6`
 
 ## Factual-Safety Review of New Editorial Material
 
