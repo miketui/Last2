@@ -16,7 +16,11 @@ import fitz  # PyMuPDF
 
 HERE = Path(__file__).resolve().parent
 SCRIPT = HERE / "build-pod-final.py"
+if not SCRIPT.is_file():
+    raise FileNotFoundError(f"POD build module not found: {SCRIPT}")
 spec = importlib.util.spec_from_file_location("bpf", SCRIPT)
+if spec is None or spec.loader is None:
+    raise ImportError(f"Unable to create an import loader for: {SCRIPT}")
 bpf = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(bpf)
 
@@ -60,8 +64,9 @@ def render_files(names):
             browser_path = os.environ.get("POD_CHROMIUM_PATH")
             if not browser_path:
                 raise RuntimeError(
-                    "Playwright Chromium is unavailable; set POD_CHROMIUM_PATH "
-                    "to a compatible Chromium executable."
+                    "Playwright could not launch its Chromium browser. "
+                    "Setting POD_CHROMIUM_PATH to a compatible Chromium executable "
+                    f"may resolve the problem. Original launch error: {original_error}"
                 ) from original_error
             browser = p.chromium.launch(
                 executable_path=browser_path,
