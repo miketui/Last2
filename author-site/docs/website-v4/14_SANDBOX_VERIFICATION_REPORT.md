@@ -7,16 +7,17 @@ Prompt 7 verified sandbox-provider readiness for Supabase, Stripe test mode, pro
 ## Date / run context
 
 - Date: 2026-06-10
+- Artifact-path refresh: 2026-07-19. Provider and build results below remain the historical June 10 verification; the v14 path changes are covered by the current repository tests.
 - Repo path: `/workspace/Last2`
 - App path: `author-site/`
 - Local branch: current working branch in `miketui/Last2`
 - Local release artifacts remain outside public:
-  - `release/Curls-and-Contemplation-v8-20260610.epub`
-  - `release/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`
+  - `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
+  - `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
 - Locked Supabase bucket: `curls-deliverables`
 - Locked private object paths:
-  - `books/curls-and-contemplation/epub/Curls-and-Contemplation-v8-20260610.epub`
-  - `books/curls-and-contemplation/pdf/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`
+  - `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
+  - `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
 
 ## Sandbox credential presence
 

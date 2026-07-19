@@ -20,7 +20,7 @@ Before coding, read and summarize:
 - `marketing/website/claims-evidence.md`
 - `release/` artifact names and checksums
 
-If the requested V8 EPUB path does not exist, report the exact release artifact names and use the newest EPUB confirmed by `release/BUILD-MANIFEST.md` only after explicitly documenting the mismatch.
+If the requested v14 EPUB path does not exist, report the exact release artifact names and use the newest EPUB confirmed by `release/BUILD-MANIFEST.md` only after explicitly documenting the mismatch.
 
 ## Locked decisions
 - Stack: **Next.js App Router + TypeScript strict + Tailwind + Supabase Auth/Database/Storage + Stripe Checkout + Resend + MailerLite + Vercel**.

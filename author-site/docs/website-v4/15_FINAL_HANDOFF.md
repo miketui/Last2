@@ -7,6 +7,8 @@
 **Production status:** **NO-GO** until activation gates pass.  
 **Preview status:** **GO for Vercel Preview after sandbox env vars are configured.**
 
+**Artifact-path refresh:** 2026-07-19. The locked download paths below now target the validated v14 release artifacts; production-provider activation remains unchanged.
+
 ## A. Executive summary
 
 Prompt 8 consolidated the full author-commerce website into one self-contained root folder, `author-site/`. The app is a Next.js App Router + TypeScript strict + Tailwind build with Supabase Auth/Database/private Storage scaffolding, Stripe Checkout/webhook scaffolding, Resend/MailerLite wrappers, consent-aware analytics plumbing, protected-download server logic, sandbox verification scripts, and launch QA documentation.
@@ -18,12 +20,12 @@ The site remains intentionally production locked: no production deploy was run, 
 - Folder consolidation target is `author-site/`.
 - `author-site/package.json`, `author-site/app/`, `author-site/docs/website-v4/`, `author-site/setup/`, and sandbox scripts exist.
 - Local release artifacts remain outside website public assets:
-  - `release/Curls-and-Contemplation-v8-20260610.epub`
-  - `release/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`
+  - `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
+  - `release/v14-editorial/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
 - Locked private Supabase bucket remains `curls-deliverables`.
 - Locked private object paths remain:
-  - `books/curls-and-contemplation/epub/Curls-and-Contemplation-v8-20260610.epub`
-  - `books/curls-and-contemplation/pdf/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`
+  - `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
+  - `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
 
 ### What remains blocked
 
@@ -138,8 +140,8 @@ author-site/
 - [ ] Apply `author-site/supabase/migrations/0001_author_commerce.sql`.
 - [ ] Verify RLS policies.
 - [ ] Create private bucket `curls-deliverables` with public access disabled.
-- [ ] Upload EPUB to `books/curls-and-contemplation/epub/Curls-and-Contemplation-v8-20260610.epub`.
-- [ ] Upload PDF to `books/curls-and-contemplation/pdf/CurlsAndContemplation-POD-Royal-v8-20260610.pdf`.
+- [ ] Upload EPUB to `books/curls-and-contemplation/epub/Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`.
+- [ ] Upload PDF to `books/curls-and-contemplation/pdf/Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`.
 - [ ] Confirm unauthorized download is denied.
 - [ ] Confirm valid entitlement creates a short-lived signed URL.
 - [ ] Confirm refund/revocation denies future access.

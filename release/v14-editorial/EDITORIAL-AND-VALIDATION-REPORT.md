@@ -7,13 +7,13 @@ Source branch: `agent/surgical-chapter-reduction-v14`
 
 The raw XHTML for Chapters I–XVI was revised chapter by chapter. Repetition and cross-chapter overlap were removed while quizzes, worksheets, actionable frameworks, safety guidance, and the strongest chapter-specific material were preserved.
 
-The POD interior is 375 pages, down from the reviewed 467-page v13 interior: 92 fewer pages (19.7%). Chapter-body source text decreased from approximately 64,745 to 45,972 words (29.0%). The difference between word and page reductions reflects preserved title pages, quizzes, worksheets, endnotes, quote pages, recto starts, and back matter.
+The POD interior is 375 pages, down from the reviewed 467-page v13 interior: 92 fewer pages (19.7%). Chapter-body source text decreased from approximately 64,745 to 46,048 words (28.9%). The difference between word and page reductions reflects preserved title pages, quizzes, worksheets, endnotes, quote pages, recto starts, and back matter.
 
 ## Chapter-Level Reduction
 
 | Chapter | Before | After | Reduction |
 |---|---:|---:|---:|
-| I | 4,080 | 2,444 | 40.1% |
+| I | 4,080 | 2,472 | 39.4% |
 | II | 2,673 | 2,471 | 7.6% |
 | III | 1,877 | 1,741 | 7.2% |
 | IV | 3,653 | 3,280 | 10.2% |
@@ -27,9 +27,9 @@ The POD interior is 375 pages, down from the reviewed 467-page v13 interior: 92 
 | XII | 4,571 | 3,813 | 16.6% |
 | XIII | 5,936 | 2,207 | 62.8% |
 | XIV | 4,872 | 3,286 | 32.6% |
-| XV | 3,429 | 2,516 | 26.6% |
+| XV | 3,429 | 2,564 | 25.2% |
 | XVI | 3,373 | 2,971 | 11.9% |
-| **Total** | **64,745** | **45,972** | **29.0%** |
+| **Total** | **64,745** | **46,048** | **28.9%** |
 
 Counts cover the primary chapter content area and exclude quizzes, worksheets, endnotes, and standalone quote pages.
 
@@ -56,7 +56,7 @@ Artifact: `Curls-and-Contemplation-v14-EDITORIAL-POD-Interior-FINAL.pdf`
 - 22 title, part, chapter, and conclusion openers land on odd-numbered recto pages.
 - The page map remained stable after Table of Contents folios were injected.
 - Representative title, body, endnote, quiz, worksheet, quote, Quiz Key, and final bibliography pages were rendered and visually inspected with no clipping, overlap, broken glyphs, or truncated text.
-- SHA-256: `045ecc63ff69a45d77f752b8a92f9c145b99ad814414684852d82e668c0b7aa2`
+- SHA-256: `3887289552d572cfdec20696ec457354a4e25c78c614aa7e8d6e8eb9c16f3a3c`
 
 ## EPUB Validation
 
@@ -66,7 +66,7 @@ Artifact: `Curls-and-Contemplation-v14-EDITORIAL-KDP-FINAL.epub`
 - EPUB 3.3 rules used.
 - `mimetype` is the first archive entry and is stored uncompressed.
 - All 50 packaged publication source files are byte-for-byte identical to the final source tree.
-- SHA-256: `09980a7e8f12bb1f23b2602ce00ed6288a8a4ab319103ab6ecc47f4d3ff8c6b6`
+- SHA-256: `991a21cf85202f75b8980c91af553f6d5d61521ee22bc96da6a5cf567de6a8c0`
 
 ## Factual-Safety Review of New Editorial Material
 
